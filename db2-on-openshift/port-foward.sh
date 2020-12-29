@@ -1,3 +1,3 @@
 #! /bin/sh
 
-oc port-forward deployment/supp-db2 50000 5000
+oc port-forward deployment/supp-db2 5000:50000
