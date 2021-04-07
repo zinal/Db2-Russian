@@ -1,37 +1,48 @@
-## Welcome to GitHub Pages
+# Обзорные материалы по IBM Db2 на русском языке
 
-You can use the [editor on GitHub](https://github.com/zinal/Db2-Russian/edit/master/docs/index.md) to maintain and preview the content for your website in Markdown files.
+Эта Wiki посвящена СУБД IBM Db2.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+Основная часть материала статей является вольной интерпретацией
+[официальной документации IBM Db2](https://www.ibm.com/support/knowledgecenter/SSEPGG_11.5.0/com.ibm.db2.luw.welcome.doc/doc/welcome.html).
+Представленная информация была реструктурирована и переформулирована
+для сжатого и в то же время максимально понятного изложения.
 
-### Markdown
+Структура материалов:
+1. основные понятия и архитектура IBM Db2:
+    * [семейство продуктов IBM Db2](Db2ProductFamily);
+    * [функциональные возможности IBM Db2](Db2Functions);
+    * [структура сервера баз данных Db2](Db2Server);
+    * [параметры конфигурации Db2](Db2Parameters);
+    * [организация хранения и кэширования данных](Db2Storage);
+    * [ведение журнала транзакций](Db2Log);
+    * [управление использованием оперативной памяти](Db2Memory);
+    * [виды объектов баз данных Db2](Db2Objects);
+    * [организация параллельной транзакционной обработки](Db2Concurrent);
+1. обзор средств для разработки приложений:
+    * [методы подключения приложений](Db2AppConnect);
+    * [разработка клиентских приложений](Db2DevClients);
+    * [разработка на стороне сервера Db2](Db2DevRoutines);
+    * [работа с данными XML и JSON](Db2XmlJson);
+    * [приёмы изменения структуры данных](Db2AlteringTables);
+    * [средства совместимости с другими СУБД](Db2Compat);
+1. [стандартные процедуры администрирования](/zinal/Db2-Russian/wiki/Db2OverviewP03):
+   установка, настройка, диагностика, резервное копирование и восстановление;
+1. расширенные процедуры администрирования: перенос информации между системами, оптимизация производительности,
+   управление приоритетами выполнения;
+1. [функции разграничения и контроля доступа](/zinal/Db2-Russian/wiki/Db2OverviewP05);
+1. [технологии построения аналитических хранилищ данных](/zinal/Db2-Russian/wiki/Db2OverviewP06):
+   применение технологии DB2 BLU для высокоскоростной «In-Memory» аналитики
+   и функций DB2 DPF (Database Partitioning Feature) для горизонтального
+   масштабирования аналитических конфигураций;
+1. распределенные базы данных (отказоустойчивые конфигурации,
+   репликация данных и федеративный доступ к данным):
+    * [настройка Db2 HADR в среде RHEL/CentOS 7.x](Db2HadrCentOs7);
+1. возможности кластерных конфигурации DB2 pureScale для обеспечения отказоустойчивости и масштабируемости.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+Автор будет благодарен за любые сообщения о замечанных неточностях и
+недостатках изложения материала. Вопросы, замечания и предложения по
+содержанию статей можно направлять на электронную почту:
+<mzinal@ru.ibm.com>.
 
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/zinal/Db2-Russian/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+Отдельная благодарность Марку Баринштейну за уделенное время на
+вычитку материала статей, внимание к деталям и ценные замечания.
