@@ -1,6 +1,5 @@
 -- SQL0286N: create user temporary tablespace usertemp1 pagesize 32768;
 
--- 1. Подготовка (создание и начальное заполнение временных таблиц)
 UPDATE MONITOR SWITCHES USING BUFFERPOOL ON;
 UPDATE MONITOR SWITCHES USING LOCK ON;
 UPDATE MONITOR SWITCHES USING SORT ON;

@@ -1,6 +1,5 @@
 -- Pre-req: wq_init.sql
 
--- 2. Итерация по завершении периода ожидания и подготовка к следующей итерации
 DELETE FROM session.mvz_metrics_1;
 
 INSERT INTO session.mvz_metrics_1
@@ -43,5 +42,10 @@ WITH datum(metric_name, parent_name, total_time, total_count) AS (
          SUBSTR(VARCHAR_FORMAT(COALESCE(cur_percent,0), '990.0'),1,6) AS "percent",
          SUBSTR(REPEAT('  ', lvl) || metric_name, 1, 60) AS metric_name
   FROM recq ORDER BY chain;
+
+DELETE FROM session.mvz_metrics_0;  
+INSERT INTO session.mvz_metrics_0
+  SELECT metric_name, total_time_value, total_count
+  FROM session.mvz_metrics_1;
 
 -- End Of File
