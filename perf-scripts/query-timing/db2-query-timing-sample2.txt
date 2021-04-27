@@ -1,0 +1,107 @@
+[db2inst1@c-db2wh-1619528657651763-db2u-0 - Db2U db2inst1]$ db2 -tf /tmp/db2-query-timing.sql                     
+DB20000I  The SQL command completed successfully.
+
+DB20000I  The SQL command completed successfully.
+
+
+  Return Status = 0
+
+DB20000I  The SQL command completed successfully.
+
+DB20000I  The SQL command completed successfully.
+
+
+1          2                    3                         
+---------- -------------------- --------------------------
+*** BEFORE                  370 2021-04-27-13.31.48.552247
+
+  1 record(s) selected.
+
+
+DB20000I  The SQL command completed successfully.
+
+
+DB20000I  The SQL command completed successfully.
+
+DB20000I  The SQL command completed successfully.
+
+
+1         2                    3                         
+--------- -------------------- --------------------------
+*** AFTER                  370 2021-04-27-13.32.53.887228
+
+  1 record(s) selected.
+
+
+DB20000I  The SQL command completed successfully.
+
+
+LVL         TOTAL_TIME           percent METRIC_NAME                                                 
+----------- -------------------- ------- ------------------------------------------------------------
+SQL0347W  The recursive common table expression "DB2INST1.RECQ" may contain an 
+infinite loop.  SQLSTATE=01605
+
+          1                    9  100.0    CLIENT_IDLE_WAIT_TIME                                     
+          1                65366  100.0    TOTAL_RQST_TIME                                           
+          2                    0    0.0      TOTAL_BACKUP_PROC_TIME                                  
+          2                    1    0.0      TOTAL_COMMIT_PROC_TIME                                  
+          2                   72    0.1      TOTAL_COMPILE_PROC_TIME                                 
+          3                    0    0.0        TOTAL_STATS_FABRICATION_PROC_TIME                     
+          3                    0    0.0        TOTAL_SYNC_RUNSTATS_PROC_TIME                         
+          2                    0    0.0      TOTAL_CONNECT_REQUEST_PROC_TIME                         
+          3                    0    0.0        TOTAL_CONNECT_AUTHENTICATION_PROC_TIME                
+          2                    0    0.0      TOTAL_IMPLICIT_COMPILE_PROC_TIME                        
+          2                    0    0.0      TOTAL_INDEX_BUILD_PROC_TIME                             
+          2                    0    0.0      TOTAL_LOAD_PROC_TIME                                    
+          2                    0    0.0      TOTAL_REORG_PROC_TIME                                   
+          2                    0    0.0      TOTAL_ROLLBACK_PROC_TIME                                
+          2                    0    0.0      TOTAL_ROUTINE_USER_CODE_PROC_TIME                       
+          2                    0    0.0      TOTAL_RUNSTATS_PROC_TIME                                
+          2                61952   94.8      TOTAL_SECTION_PROC_TIME                                 
+          3                50921   82.2        TOTAL_COL_PROC_TIME                                   
+          4                   73    0.1          TOTAL_COL_SYNOPSIS_PROC_TIME                        
+          3                    0    0.0        TOTAL_SECTION_SORT_PROC_TIME                          
+          2                 3336    5.1      TOTAL_WAIT_TIME                                         
+          3                    0    0.0        AGENT_WAIT_TIME                                       
+          3                    0    0.0        AUDIT_FILE_WRITE_WAIT_TIME                            
+          3                    0    0.0        AUDIT_SUBSYSTEM_WAIT_TIME                             
+          3                    0    0.0        CF_WAIT_TIME                                          
+          3                    0    0.0        COMM_EXIT_WAIT_TIME                                   
+          3                    0    0.0        DIAGLOG_WRITE_WAIT_TIME                               
+          3                    9    0.3        DIRECT_READ_TIME                                      
+          3                    0    0.0        DIRECT_WRITE_TIME                                     
+          3                    0    0.0        EVMON_WAIT_TIME                                       
+          3                    0    0.0        EXT_TABLE_RECV_WAIT_TIME                              
+          3                    0    0.0        EXT_TABLE_SEND_WAIT_TIME                              
+          3                    1    0.0        FCM_RECV_WAIT_TIME                                    
+          4                    0    0.0          FCM_MESSAGE_RECV_WAIT_TIME                          
+          4                    1  100.0          FCM_TQ_RECV_WAIT_TIME                               
+          3                    0    0.0        FCM_SEND_WAIT_TIME                                    
+          4                    0    0.0          FCM_MESSAGE_SEND_WAIT_TIME                          
+          4                    0    0.0          FCM_TQ_SEND_WAIT_TIME                               
+          3                    0    0.0        FED_WAIT_TIME                                         
+          3                    0    0.0        IDA_RECV_WAIT_TIME                                    
+          3                    0    0.0        IDA_SEND_WAIT_TIME                                    
+          3                    0    0.0        IPC_RECV_WAIT_TIME                                    
+          3                    1    0.0        IPC_SEND_WAIT_TIME                                    
+          3                    0    0.0        LOB_PREFETCH_WAIT_TIME                                
+          3                    0    0.0        LOCK_WAIT_TIME                                        
+          4                    0    0.0          LOCK_WAIT_TIME_GLOBAL                               
+          3                 1309   39.2        LOG_BUFFER_WAIT_TIME                                  
+          3                   15    0.4        LOG_DISK_WAIT_TIME                                    
+          3                    0    0.0        POOL_CACHING_TIER_PAGE_READ_TIME                      
+          3                    0    0.0        POOL_CACHING_TIER_PAGE_WRITE_TIME                     
+          3                    1    0.0        POOL_READ_TIME                                        
+          3                    0    0.0        POOL_WRITE_TIME                                       
+          3                    0    0.0        PREFETCH_WAIT_TIME                                    
+          3                    0    0.0        RECLAIM_WAIT_TIME                                     
+          3                    0    0.0        SPACEMAPPAGE_RECLAIM_WAIT_TIME                        
+          3                    0    0.0        TCPIP_RECV_WAIT_TIME                                  
+          3                    0    0.0        TCPIP_SEND_WAIT_TIME                                  
+          3                 2001   60.0        TOTAL_EXTENDED_LATCH_WAIT_TIME                        
+          3                    0    0.0        WLM_QUEUE_TIME_TOTAL                                  
+
+  59 record(s) selected with 1 warning messages printed.
+
+
+[db2inst1@c-db2wh-1619528657651763-db2u-0 - Db2U db2inst1]$ 

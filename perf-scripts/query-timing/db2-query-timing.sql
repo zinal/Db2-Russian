@@ -40,7 +40,7 @@ COMMIT;
 -- BEGIN WORKLOAD
 
 INSERT INTO DWH.H_TEST(ID, ID_SYSTEM, ID_ORIGINAL)
-WITH s10(id) AS (SELECT SMALLINT(1) AS t FROM syscat.tables FETCH FIRST 100 ROWS ONLY),
+WITH s10(id) AS (SELECT SMALLINT(1) AS t FROM syscat.tables FETCH FIRST 10 ROWS ONLY),
      s1k(id) AS (SELECT SMALLINT(1) AS t FROM s10 q1, s10 q2, s10 q3),
      s1m(id) AS (SELECT SMALLINT(1) AS t FROM s1k q1, s1k q2),
      s10m(id) AS (SELECT SMALLINT(1) AS t FROM s1m q1, s10 q2),
@@ -48,7 +48,8 @@ WITH s10(id) AS (SELECT SMALLINT(1) AS t FROM syscat.tables FETCH FIRST 100 ROWS
 SELECT ID,
        BIGINT(RAND()*1000000000) AS ID_SYSTEM,
        123 + ID * 10
-FROM sq;
+FROM sq
+FETCH FIRST 3000000 ROWS ONLY;
 
 -- END WORKLOAD
 
@@ -57,7 +58,7 @@ COMMIT;
 values ('*** AFTER', MON_GET_APPLICATION_HANDLE(), current timestamp);
 
 
-INSERT INTO session.mvz_metrics_1s
+INSERT INTO session.mvz_metrics_1
 SELECT f.metric_name,
        COALESCE(SUM(f.total_time_value), 0),
        COALESCE(SUM(f.count), 0),
