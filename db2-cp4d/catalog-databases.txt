@@ -1,0 +1,5 @@
+# DV catalog, non-SSL
+db2 catalog tcpip node pubocp3 remote publicocp server 31160
+db2 catalog db BIGSQL as pubocp3 at node pubocp3
+# Connect using default username and password (changed after the installation)
+db2 connect to pubocp3 user admin using password

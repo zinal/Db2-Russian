@@ -1,0 +1,97 @@
+$ oc get svc | grep db2wh
+c-db2wh-1619528657651763-db2u                     ClusterIP   172.30.224.132   <none>        50000/TCP,50001/TCP,25000/TCP,25001/TCP,25002/TCP,25003/TCP,25004/TCP,25005/TCP   42h
+c-db2wh-1619528657651763-db2u-engn-svc            NodePort    172.30.29.43     <none>        50000:32632/TCP,50001:31157/TCP                                                   42h
+c-db2wh-1619528657651763-db2u-internal            ClusterIP   None             <none>        50000/TCP,9443/TCP                                                                42h
+c-db2wh-1619528657651763-etcd                     ClusterIP   None             <none>        2379/TCP,2380/TCP                                                                 42h
+c-db2wh-1619528657651763-tools                    ClusterIP   172.30.219.222   <none>        53/TCP,53/UDP                                                                     42h
+db2wh-catalog-amd64                               ClusterIP   172.30.118.147   <none>        8080/TCP,8443/TCP                                                                 46h
+$ 
+$ oc describe svc c-db2wh-1619528657651763-db2u-engn-svc
+Name:                     c-db2wh-1619528657651763-db2u-engn-svc
+Namespace:                zen
+Labels:                   formation_id=db2wh-1619528657651763
+Annotations:              <none>
+Selector:                 app=db2wh-1619528657651763,component=db2wh,formation_id=db2wh-1619528657651763,role=db,type=engine
+Type:                     NodePort
+IP:                       172.30.29.43
+Port:                     legacy-server  50000/TCP
+TargetPort:               50000/TCP
+NodePort:                 legacy-server  32632/TCP
+Endpoints:                10.128.3.68:50000
+Port:                     ssl-server  50001/TCP
+TargetPort:               50001/TCP
+NodePort:                 ssl-server  31157/TCP
+Endpoints:                10.128.3.68:50001
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+$ 
+$ oc get svc | grep db2oltp
+c-db2oltp-1615632995117830-db2u                   ClusterIP   172.30.222.220   <none>        50000/TCP,50001/TCP,25000/TCP,25001/TCP,25002/TCP,25003/TCP,25004/TCP,25005/TCP   46d
+c-db2oltp-1615632995117830-db2u-engn-svc          NodePort    172.30.109.59    <none>        50000:30113/TCP,50001:31979/TCP                                                   46d
+c-db2oltp-1615632995117830-db2u-internal          ClusterIP   None             <none>        50000/TCP,9443/TCP                                                                46d
+c-db2oltp-1615632995117830-etcd                   ClusterIP   None             <none>        2379/TCP,2380/TCP                                                                 46d
+c-db2oltp-1615632995117830-tools                  ClusterIP   172.30.198.118   <none>        53/TCP,53/UDP                                                                     46d
+db2oltp-catalog-amd64                             ClusterIP   172.30.35.116    <none>        8080/TCP,8443/TCP                                                                 46d
+$ 
+$ oc describe svc c-db2oltp-1615632995117830-db2u-engn-svc
+Name:                     c-db2oltp-1615632995117830-db2u-engn-svc
+Namespace:                zen
+Labels:                   formation_id=db2oltp-1615632995117830
+Annotations:              <none>
+Selector:                 app=db2oltp-1615632995117830,component=db2oltp,formation_id=db2oltp-1615632995117830,role=db,type=engine
+Type:                     NodePort
+IP:                       172.30.109.59
+Port:                     legacy-server  50000/TCP
+TargetPort:               50000/TCP
+NodePort:                 legacy-server  30113/TCP
+Endpoints:                10.130.3.47:50000
+Port:                     ssl-server  50001/TCP
+TargetPort:               50001/TCP
+NodePort:                 ssl-server  31979/TCP
+Endpoints:                10.130.3.47:50001
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+$ 
+$ oc get svc | grep dv
+dv                                                ClusterIP   None             <none>        7777/TCP,6414/TCP,6415/TCP,6416/TCP,6417/TCP,6418/TCP,6419/TCP,28051/TCP          35d
+dv-addon                                          ClusterIP   172.30.50.195    <none>        80/TCP,443/TCP                                                                    47d
+dv-api                                            ClusterIP   172.30.149.152   <none>        3300/TCP                                                                          35d
+dv-caching                                        ClusterIP   172.30.80.7      <none>        8080/TCP,443/TCP                                                                  35d
+dv-console-uc                                     ClusterIP   172.30.180.9     <none>        8443/TCP,443/TCP                                                                  35d
+dv-internal                                       ClusterIP   172.30.255.102   <none>        32051/TCP,32052/TCP,5389/TCP                                                      35d
+dv-metastore                                      ClusterIP   None             <none>        3306/TCP                                                                          35d
+dv-server                                         NodePort    172.30.30.19     <none>        7777:31218/TCP,32051:31160/TCP,32052:32432/TCP                                    35d
+dv-service-provider                               ClusterIP   172.30.44.45     <none>        3443/TCP                                                                          47d
+dv-utils                                          ClusterIP   None             <none>        8020/TCP,9083/TCP                                                                 35d
+$ 
+$ oc describe svc dv-server
+Name:                     dv-server
+Namespace:                zen
+Labels:                   app.kubernetes.io/component=engine
+                          app.kubernetes.io/instance=dv-0-1616572360989115
+                          app.kubernetes.io/managed-by=Tiller
+                          app.kubernetes.io/name=dv
+                          helm.sh/chart=ibm-dv
+                          release=dv-0-1616572360989115
+Annotations:              <none>
+Selector:                 app.kubernetes.io/component=engine,app.kubernetes.io/instance=dv-0-1616572360989115,app.kubernetes.io/managed-by=Tiller,app.kubernetes.io/name=dv,helm.sh/chart=ibm-dv,release=dv-0-1616572360989115
+Type:                     NodePort
+IP:                       172.30.30.19
+Port:                     qpdiscovery  7777/TCP
+TargetPort:               7777/TCP
+NodePort:                 qpdiscovery  31218/TCP
+Endpoints:                10.128.3.208:7777
+Port:                     bigsqldb2jdbc  32051/TCP
+TargetPort:               32051/TCP
+NodePort:                 bigsqldb2jdbc  31160/TCP
+Endpoints:                10.128.3.208:32051
+Port:                     bigsqldb2jdbcssl  32052/TCP
+TargetPort:               32052/TCP
+NodePort:                 bigsqldb2jdbcssl  32432/TCP
+Endpoints:                10.128.3.208:32052
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+$ 
