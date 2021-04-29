@@ -66,3 +66,32 @@ dv-server                                         NodePort    172.30.30.19     <
 dv-service-provider                               ClusterIP   172.30.44.45     <none>        3443/TCP                                                                          47d
 dv-utils                                          ClusterIP   None             <none>        8020/TCP,9083/TCP                                                                 35d
 $ 
+$ oc describe svc dv-server
+Name:                     dv-server
+Namespace:                zen
+Labels:                   app.kubernetes.io/component=engine
+                          app.kubernetes.io/instance=dv-0-1616572360989115
+                          app.kubernetes.io/managed-by=Tiller
+                          app.kubernetes.io/name=dv
+                          helm.sh/chart=ibm-dv
+                          release=dv-0-1616572360989115
+Annotations:              <none>
+Selector:                 app.kubernetes.io/component=engine,app.kubernetes.io/instance=dv-0-1616572360989115,app.kubernetes.io/managed-by=Tiller,app.kubernetes.io/name=dv,helm.sh/chart=ibm-dv,release=dv-0-1616572360989115
+Type:                     NodePort
+IP:                       172.30.30.19
+Port:                     qpdiscovery  7777/TCP
+TargetPort:               7777/TCP
+NodePort:                 qpdiscovery  31218/TCP
+Endpoints:                10.128.3.208:7777
+Port:                     bigsqldb2jdbc  32051/TCP
+TargetPort:               32051/TCP
+NodePort:                 bigsqldb2jdbc  31160/TCP
+Endpoints:                10.128.3.208:32051
+Port:                     bigsqldb2jdbcssl  32052/TCP
+TargetPort:               32052/TCP
+NodePort:                 bigsqldb2jdbcssl  32432/TCP
+Endpoints:                10.128.3.208:32052
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+$ 
