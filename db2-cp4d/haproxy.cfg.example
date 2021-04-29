@@ -145,7 +145,7 @@ backend db2wh
 # DV external access
 
 frontend dv-nonssl
-        bind *:30207
+        bind *:31160
         default_backend dv-nonssl-back
         mode tcp
         option tcplog
@@ -153,12 +153,12 @@ frontend dv-nonssl
 backend dv-nonssl-back
         balance source
         mode tcp
-        server master1 172.17.207.196:30207 check
-        server master2 172.17.207.197:30207 check
-        server master3 172.17.207.198:30207 check
+        server master1 172.17.207.196:31160 check
+        server master2 172.17.207.197:31160 check
+        server master3 172.17.207.198:31160 check
 
 frontend dv-ssl
-        bind *:32695
+        bind *:32432
         default_backend dv-ssl-back
         mode tcp
         option tcplog
@@ -166,12 +166,12 @@ frontend dv-ssl
 backend dv-ssl-back
         balance source
         mode tcp
-        server master1 172.17.207.196:32695 check
-        server master2 172.17.207.197:32695 check
-        server master3 172.17.207.198:32695 check
+        server master1 172.17.207.196:32432 check
+        server master2 172.17.207.197:32432 check
+        server master3 172.17.207.198:32432 check
 
 frontend dv-discovery
-        bind *:30373
+        bind *:31218
         default_backend dv-ssl-back
         mode tcp
         option tcplog
@@ -179,8 +179,8 @@ frontend dv-discovery
 backend dv-discovery-back
         balance source
         mode tcp
-        server master1 172.17.207.196:30373 check
-        server master2 172.17.207.197:30373 check
-        server master3 172.17.207.198:30373 check
+        server master1 172.17.207.196:31218 check
+        server master2 172.17.207.197:31218 check
+        server master3 172.17.207.198:31218 check
 
 # End Of File
