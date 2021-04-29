@@ -1,0 +1,186 @@
+#---------------------------------------------------------------------
+# Global settings
+#---------------------------------------------------------------------
+global
+    # to have these messages end up in /var/log/haproxy.log you will
+    # need to:
+    #
+    # 1) configure syslog to accept network log events.  This is done
+    #    by adding the '-r' option to the SYSLOGD_OPTIONS in
+    #    /etc/sysconfig/syslog
+    #
+    # 2) configure local2 events to go to the /var/log/haproxy.log
+    #   file. A line like the following can be added to
+    #   /etc/sysconfig/syslog
+    #
+    #    local2.*                       /var/log/haproxy.log
+    #
+    log         127.0.0.1 local2
+
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    maxconn     4000
+    user        haproxy
+    group       haproxy
+    daemon
+
+    # turn on stats unix socket
+    stats socket /var/lib/haproxy/stats
+
+#---------------------------------------------------------------------
+# common defaults that all the 'listen' and 'backend' sections will
+# use if not designated in their block
+#---------------------------------------------------------------------
+defaults
+    mode                    tcp
+    log                     global
+    option                  dontlognull
+    option  tcp-smart-accept
+    option  tcp-smart-connect
+    retries                 3
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          20m
+    timeout server          20m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 3000
+
+#---------------------------------------------------------------------
+
+listen stats
+    bind :9000
+    mode http
+    stats enable
+    stats uri /
+    monitor-uri /healthz
+    option httplog
+    option forwardfor       except 127.0.0.0/8
+    option http-server-close
+
+frontend openshift-api-server
+    bind *:6443
+    default_backend openshift-api-server
+    option tcplog
+
+backend openshift-api-server
+    balance source
+    option redispatch
+    server bootstrap 172.17.207.195:6443 check
+    server master1 172.17.207.196:6443 check
+    server master2 172.17.207.197:6443 check
+    server master3 172.17.207.198:6443 check
+    
+frontend machine-config-server
+    bind *:22623
+    default_backend machine-config-server
+    option tcplog
+
+backend machine-config-server
+    balance source
+    option redispatch
+    server bootstrap 172.17.207.195:22623 check
+    server master1 172.17.207.196:22623 check
+    server master2 172.17.207.197:22623 check
+    server master3 172.17.207.198:22623 check
+  
+frontend ingress-http
+    bind *:80
+    default_backend ingress-http
+    option tcplog
+
+backend ingress-http
+    balance source
+    option redispatch
+    server worker1-http-router0 172.17.207.199:80 check
+    server worker2-http-router1 172.17.207.200:80 check
+    server worker3-http-router2 172.17.207.201:80 check
+   
+frontend ingress-https
+    bind *:443
+    default_backend ingress-https
+    option tcplog
+
+backend ingress-https
+    balance source
+    option redispatch
+    server worker1-https-router0 172.17.207.199:443 check
+    server worker2-https-router1 172.17.207.200:443 check
+    server worker3-https-router2 172.17.207.201:443 check
+
+#---------------------------------------------------------------------
+# Db2 OLTP external access
+
+frontend db2oltp
+        bind *:30113
+        default_backend db2oltp
+        mode tcp
+        option tcplog
+
+backend db2oltp
+        balance source
+        mode tcp
+        server master1 172.17.207.196:30113 check
+        server master2 172.17.207.197:30113 check
+        server master3 172.17.207.198:30113 check
+
+#---------------------------------------------------------------------
+# Db2 Warehouse external access
+
+frontend db2wh
+        bind *:32632
+        default_backend db2wh
+        mode tcp
+        option tcplog
+
+backend db2wh
+        balance source
+        mode tcp
+        server master1 172.17.207.196:32632 check
+        server master2 172.17.207.197:32632 check
+        server master3 172.17.207.198:32632 check
+
+#---------------------------------------------------------------------
+# DV external access
+
+frontend dv-nonssl
+        bind *:30207
+        default_backend dv-nonssl-back
+        mode tcp
+        option tcplog
+
+backend dv-nonssl-back
+        balance source
+        mode tcp
+        server master1 172.17.207.196:30207 check
+        server master2 172.17.207.197:30207 check
+        server master3 172.17.207.198:30207 check
+
+frontend dv-ssl
+        bind *:32695
+        default_backend dv-ssl-back
+        mode tcp
+        option tcplog
+
+backend dv-ssl-back
+        balance source
+        mode tcp
+        server master1 172.17.207.196:32695 check
+        server master2 172.17.207.197:32695 check
+        server master3 172.17.207.198:32695 check
+
+frontend dv-discovery
+        bind *:30373
+        default_backend dv-ssl-back
+        mode tcp
+        option tcplog
+
+backend dv-discovery-back
+        balance source
+        mode tcp
+        server master1 172.17.207.196:30373 check
+        server master2 172.17.207.197:30373 check
+        server master3 172.17.207.198:30373 check
+
+# End Of File
