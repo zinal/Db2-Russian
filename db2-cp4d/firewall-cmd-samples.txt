@@ -1,0 +1,14 @@
+# Apply haproxy settings
+systemctl reload haproxy
+systemctl status haproxy
+
+# Get firewalld setup
+firewall-cmd --list-all-zones
+firewall-cmd --get-default-zone
+firewall-cmd --zone=public --list-all
+
+# Open DV firewalld ports
+firewall-cmd --zone=public --add-port=31218/tcp --permanent
+firewall-cmd --zone=public --add-port=31160/tcp --permanent
+firewall-cmd --zone=public --add-port=32432/tcp --permanent
+firewall-cmd --reload
