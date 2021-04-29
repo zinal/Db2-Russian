@@ -1,11 +1,15 @@
 -- Measure query time distribution for a specific set of queries
 -- To run on OpenShift:
--- oc cp db2-query-timing.sql c-db2wh-1619517073489288-db2u-0:/tmp/db2-query-timing.sql
--- oc rsh c-db2wh-1619517073489288-db2u-0
+-- DB2WH=c-db2wh-1619528657651763-db2u-0
+-- oc cp db2-query-timing.sql $DB2WH:/tmp/db2-query-timing.sql
+-- oc rsh $DB2WH
 -- su - db2inst1
 -- db2 connect to bludb
 -- db2 create user temporary tablespace usertemp1 pagesize 32768  # in case of SQL0286N
 -- db2 -tf /tmp/db2-query-timing.sql
+-- db2 connect to bludb
+-- db2 "create unique index dwh.h_test_pk on dwh.h_test(id) page split high"
+-- db2 "alter table dwh.h_test add constraint h_test_pk primary key(id) enforced"
 
 DECLARE GLOBAL TEMPORARY TABLE mvz_metrics_0 (
   metric_name VARCHAR(128) NOT NULL,
@@ -43,13 +47,11 @@ INSERT INTO DWH.H_TEST(ID, ID_SYSTEM, ID_ORIGINAL)
 WITH s10(id) AS (SELECT SMALLINT(1) AS t FROM syscat.tables FETCH FIRST 10 ROWS ONLY),
      s1k(id) AS (SELECT SMALLINT(1) AS t FROM s10 q1, s10 q2, s10 q3),
      s1m(id) AS (SELECT SMALLINT(1) AS t FROM s1k q1, s1k q2),
-     s10m(id) AS (SELECT SMALLINT(1) AS t FROM s1m q1, s10 q2),
-     sq(id) AS (SELECT BIGINT(ROW_NUMBER() OVER()) AS ID FROM s10m)
+     sq(id) AS (SELECT BIGINT(ROW_NUMBER() OVER()) AS ID FROM s1m)
 SELECT ID,
        BIGINT(RAND()*1000000000) AS ID_SYSTEM,
        123 + ID * 10
-FROM sq
-FETCH FIRST 3000000 ROWS ONLY;
+FROM sq;
 
 -- END WORKLOAD
 

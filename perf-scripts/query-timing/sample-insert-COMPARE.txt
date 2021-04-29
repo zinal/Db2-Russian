@@ -1,0 +1,4 @@
+Mode                     Seconds
+PK ENFORCED              20.6
+INDEX SPLIT HIGH         21.0
+NO INDEX                  5.7
