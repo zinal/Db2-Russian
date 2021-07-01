@@ -27,3 +27,15 @@ psql -p 25432 -h localhost -U admin -d template1
 > create table tab2(a integer not null primary key, b varchar(100) not null);
 > create table tab3(a integer not null primary key, b varchar(100) not null);
 
+WITH x0(id) AS (VALUES (0),(1),(2),(3),(4),(5),(6),(7),(8),(9)),
+     x1k AS (SELECT 1 FROM x0 a, x0 b, x0 c),
+     x1m AS (SELECT ROW_NUMBER() OVER() AS v FROM x1k a, x1k b),
+     mx AS (SELECT COALESCE(MAX(a), 0) AS ma FROM tab1)
+INSERT INTO tab1 (a, b)
+SELECT mx.ma + x1m.v, md5(random()::text)
+FROM mx, x1m;
+
+WITH mx AS (SELECT COALESCE(MAX(a), 0) AS ma FROM tab1)
+UPDATE tab1 SET b = md5(random()::text)
+FROM mx WHERE a = 1 + CAST(random() * mx.ma AS INTEGER);
+
