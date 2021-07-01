@@ -22,6 +22,8 @@ cat <<EOF | sudo tee /etc/systemd/system/etcd.service
 [Unit]
 Description=etcd service
 Documentation=https://github.com/etcd-io/etcd
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Type=notify

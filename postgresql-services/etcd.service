@@ -1,0 +1,24 @@
+[Unit]
+Description=etcd service
+Documentation=https://github.com/etcd-io/etcd
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=notify
+User=etcd
+ExecStart=/usr/local/etcd/etcd \
+  --name pgdemo1 \
+  --auto-compaction-retention=1 \
+  --enable-v2=true \
+  --data-dir=/var/lib/etcd \
+  --initial-advertise-peer-urls http://192.168.10.1:2380 \
+  --listen-peer-urls http://192.168.10.1:2380 \
+  --listen-client-urls http://192.168.10.1:2379,http://127.0.0.1:2379 \
+  --advertise-client-urls http://192.168.10.1:2379 \
+  --initial-cluster-token etcd-cluster-0 \
+  --initial-cluster pgdemo1=http://pgdemo1:2380,pgdemo2=http://pgdemo2:2380,pgdemo3=http://pgdemo3:2380 \
+  --initial-cluster-state new
+
+[Install]
+WantedBy=multi-user.target

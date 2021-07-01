@@ -1,0 +1,14 @@
+[Unit]
+Description=patroni service
+Documentation=https://github.com/zalando/patroni
+Wants=etcd.service
+After=etcd.service
+
+[Service]
+Type=simple
+User=postgres
+WorkingDirectory=/Config/patroni
+ExecStart=/usr/local/bin/patroni pgdemo1.yaml
+
+[Install]
+WantedBy=multi-user.target
