@@ -1,0 +1,15 @@
+****** Patroni
+
+https://www.cybertec-postgresql.com/en/patroni-setting-up-a-highly-available-postgresql-cluster/
+
+wget https://raw.githubusercontent.com/zalando/patroni/master/postgres0.yml
+
+for x in 1 2 3; do ssh pgdemo"$x" firewall-cmd --add-port=5432/tcp --permanent; done
+for x in 1 2 3; do ssh pgdemo"$x" firewall-cmd --reload; done
+
+patroni pgdemo1.yaml > log_pgdemo1.log 2>&1 &
+patroni pgdemo2.yaml > log_pgdemo2.log 2>&1 &
+patroni pgdemo3.yaml > log_pgdemo3.log 2>&1 &
+
+patronictl -d etcd://localhost:2379 list pgdemo
+
