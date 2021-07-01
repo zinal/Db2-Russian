@@ -17,3 +17,13 @@ for x in 1 2 3; do ssh pgdemo"$x" setsebool -P haproxy_connect_any 1; done
 
 for x in 1 2 3; do ssh pgdemo"$x" systemctl enable haproxy; done
 for x in 1 2 3; do ssh pgdemo"$x" systemctl start haproxy; done
+
+psql -p 25432 -h localhost -U admin -d template1
+> create user pushkinn with encrypted password 'P@ssw0rd';
+> grant pushkinn to admin;
+> create database pushkinn with owner pushkinn;
+> \c pushkinn
+> create table tab1(a integer not null primary key, b varchar(100) not null);
+> create table tab2(a integer not null primary key, b varchar(100) not null);
+> create table tab3(a integer not null primary key, b varchar(100) not null);
+
