@@ -6,7 +6,11 @@ set +u
 
 . download-dependencies.sh
 
-XCP=$MAIN_DB2:$MAIN_ZK_JAR
+XCP=.:$MAIN_DB2
+for x in `find .cache/zk/lib -type f -name \*.jar`; do
+    XCP="$XCP":"$x"
+done
+
 $MAIN_GROOVY/bin/groovy -cp "$XCP" RefreshHiveZookeeper.groovy
 
 # End Of File

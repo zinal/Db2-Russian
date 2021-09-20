@@ -2,5 +2,17 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 <comment>RefreshHiveZookeeper configuration</comment>
+<!-- Kerberos authentication settings: -->
 <entry key="SYS.java.security.auth.login.config">jaas.config</entry>
+<!-- Below are the settings for TLS protection: -->
+<!--
+<entry key="SYS.zookeeper.clientCnxnSocket">org.apache.zookeeper.ClientCnxnSocketNetty</entry>
+<entry key="SYS.zookeeper.client.secure">true</entry>
+<entry key="SYS.zookeeper.ssl.keyStore.location">tls-truststore.jks</entry>
+<entry key="SYS.zookeeper.ssl.keyStore.password">odp8Z2Mgzdz9RXUPIv9EKIsBkaHZLNN0BHdkEOY77en</entry>
+<entry key="SYS.zookeeper.ssl.trustStore.location">tls-truststore.jks</entry>
+<entry key="SYS.zookeeper.ssl.trustStore.password">odp8Z2Mgzdz9RXUPIv9EKIsBkaHZLNN0BHdkEOY77en</entry>
+-->
+<!-- List of ZooKeeper hosts to connect: -->
+<entry key="zk.host">cldr64.ibmcc.ru:2181</entry><!--cldr64.ibmcc.ru:2181,cldr65.ibmcc.ru:2181,cldr66.ibmcc.ru:2181-->
 </properties>
