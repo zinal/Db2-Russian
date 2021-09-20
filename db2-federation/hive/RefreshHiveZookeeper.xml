@@ -13,6 +13,9 @@
 <entry key="SYS.zookeeper.ssl.trustStore.location">tls-truststore.jks</entry>
 <entry key="SYS.zookeeper.ssl.trustStore.password">odp8Z2Mgzdz9RXUPIv9EKIsBkaHZLNN0BHdkEOY77en</entry>
 -->
-<!-- List of ZooKeeper hosts to connect: -->
-<entry key="zk.host">cldr64.ibmcc.ru:2181</entry><!--cldr64.ibmcc.ru:2181,cldr65.ibmcc.ru:2181,cldr66.ibmcc.ru:2181-->
+<!-- List of ZooKeeper hosts to connect:
+,cldr65.ibmcc.ru:2181,cldr66.ibmcc.ru:2181
+-->
+<entry key="zk.host">cldr64.ibmcc.ru:2181</entry>
+<entry key="zk.ns">hiveserver2</entry>
 </properties>
