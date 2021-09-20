@@ -31,9 +31,10 @@ fi
 
 # Create the cache directory if it does not exist
 [ -d .cache ] || mkdir .cache
-
 # Distributions directory
 [ -d .cache/ditto ] || mkdir .cache/ditto
+# Jars directory
+[ -d .cache/jars ] || mkdir .cache/jars
 
 # Grab ZooKeeper
 DITTO_ZK=.cache/ditto/zookeeper.tgz
@@ -50,6 +51,11 @@ if [ ! -f $MAIN_ZK/bin/zkCli.sh ]; then
   tar xf $DITTO_ZK -C $MAIN_ZK --strip-components=1
 fi
 
+MAIN_ZK_JAR=.cache/jars/zookeeper.jar
+if [ ! -f $MAIN_ZK_JAR ]; then
+  cp $MAIN_ZK/lib/zookeeper-[0-9]*.[0-9]*.[0-9]*.jar $MAIN_ZK_JAR
+fi
+
 # Grab Db2 Client
 DITTO_DB2=.cache/ditto/db2jcc4.jar
 if [ ! -f $DITTO_DB2 ]; then
@@ -57,7 +63,7 @@ if [ ! -f $DITTO_DB2 ]; then
   $CURL -o $DITTO_DB2 $URL_DB2
 fi
 
-MAIN_DB2=$MAIN_ZK/lib/db2jcc4.jar
+MAIN_DB2=.cache/jars/db2jcc4.jar
 if [ ! -f $MAIN_DB2  ]; then
   cp $DITTO_DB2 $MAIN_DB2
 fi
