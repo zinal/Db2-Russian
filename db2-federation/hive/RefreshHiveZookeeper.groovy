@@ -1,9 +1,10 @@
 // RefreshHiveZookeeper.groovy
 
-import org.apache.zookeeper.*
-import static org.apache.zookeeper.Watcher.Event.KeeperState
+import groovy.sql.Sql
 import java.util.concurrent.CountDownLatch
 import java.nio.charset.StandardCharsets
+import org.apache.zookeeper.*
+import static org.apache.zookeeper.Watcher.Event.KeeperState
 
 // Установить соединение с ZooKeeper
 ZooKeeper zookeeper(Properties props) {
@@ -18,19 +19,6 @@ ZooKeeper zookeeper(Properties props) {
     });
     connectionLatch.await();
     return zoo;
-}
-
-// Установить соединение с Db2
-java.sql.Connection connectDb2(Properties props) {
-    String url = props.getProperty("db2.url")
-    if (url==null || url.length()==0) {
-        return null
-    }
-    String username = props.getProperty("db2.username")
-    String password = props.getProperty("db2.password")
-    if (username==null || username.length()==0)
-        return java.sql.DriverManager.getConnection(url)
-    return java.sql.DriverManager.getConnection(url, username, password)
 }
 
 // Разобрать строчку параметров подключения Hive из ZooKeeper
@@ -87,17 +75,83 @@ zookeeper(props).withCloseable { zk ->
 
 if (hiveParams==null) {
     println "ZooKeeper does not contain any Hive reference"
-    System.exit(0)
+    System.exit(1)
 }
 
-Map<String, String> hiveConn = parseHiveParams(hiveParams)
+final Map<String, String> hiveConn = parseHiveParams(hiveParams)
 println "Hive parameters retrieved from ZooKeeper: " + hiveConn.toString()
 
-println "Connecting to Db2..."
+final String serverName = props.getProperty("db2.server")
 
-Class.forName("com.ibm.db2.jcc.DB2Driver")
-connectDb2(props).withCloseable { con ->
+println "Connecting to Db2..."
+Sql.withInstance(
+    props.getProperty("db2.url"),
+    props.getProperty("db2.username"),
+    props.getProperty("db2.password"),
+    "com.ibm.db2.jcc.DB2Driver"
+) { sql ->
+
     println "Connection established, retrieving SERVER details..."
+    String curHost = null;
+    String curPort = null;
+    String curPrinc = null;
+    def text = '''
+SELECT h.setting AS xhost, p.setting AS xport, x.setting AS xprinc
+FROM syscat.serveroptions h, syscat.serveroptions p, syscat.serveroptions x
+WHERE h.option='HOST' AND p.option='PORT' AND x.option='SERVER_PRINCIPAL_NAME'
+  AND h.servername=:serv AND h.servername=p.servername AND h.servername=x.servername
+    '''
+    sql.eachRow(text, [serv: serverName]) { row ->
+        curHost = row.getString(1)
+        curPort = row.getString(2)
+        curPrinc = row.getString(3)
+    }
+
+    if (curHost==null || curPort==null) {
+        println "Hive SERVER object does not exist, terminating..."
+        System.exit(1)
+    }
+
+    String trueHost = hiveConn.get("hive.server2.thrift.bind.host")
+    String truePort = hiveConn.get("hive.server2.thrift.port")
+    String truePrinc = hiveConn.get("hive.server2.authentication.kerberos.principal")
+    truePrinc = truePrinc.replace('_HOST', trueHost)
+
+    println "Current SERVER object refers to " + curHost + " at " + curPort
+    println "True SERVER object refers to " + trueHost + " at " + truePort
+
+    boolean changes = true
+    if (trueHost!=null && trueHost.equals(curHost)
+        && truePort!=null && truePort.equals(curPort)
+        && truePrinc!=null && truePrinc.equals(curPrinc)
+    ) {
+        changes = false
+        println("No changes, nothing to update.")
+    }
+
+    if (changes) {
+        final StringBuilder sqlAlter = new StringBuilder();
+        sqlAlter.append("ALTER SERVER ").append(serverName).append(" OPTIONS(");
+        boolean needComma = false;
+        if (trueHost!=null && !trueHost.equals(curHost)) {
+            if (needComma) sqlAlter.append(", "); else needComma = true;
+            sqlAlter.append("SET HOST '").append(trueHost).append("'")
+        }
+        if (truePort!=null && !truePort.equals(curPort)) {
+            if (needComma) sqlAlter.append(", "); else needComma = true;
+            sqlAlter.append("SET PORT '").append(truePort).append("'")
+        }
+        if (truePrinc!=null && !truePrinc.equals(curPrinc)) {
+            if (needComma) sqlAlter.append(", "); else needComma = true;
+            sqlAlter.append("SET SERVER_PRINCIPAL_NAME '").append(truePrinc).append("'")
+        }
+        sqlAlter.append(")")
+
+        println "SQL: " + sqlAlter.toString()
+        sql.execute(sqlAlter.toString())
+
+        println("Changes applied.")
+    }
 }
 
 // End Of File

@@ -21,4 +21,6 @@
 <entry key="db2.url">jdbc:db2://helper.apps.publicocp.ibmcc.ru:32086/BLUDB:securityMechanism=9;encryptionAlgorithm=2;</entry>
 <entry key="db2.username">techacc</entry>
 <entry key="db2.password">passw0rd</entry>
+<!-- SERVER object name which refers to a Hive connection -->
+<entry key="db2.server">HIVE1</entry>
 </properties>
