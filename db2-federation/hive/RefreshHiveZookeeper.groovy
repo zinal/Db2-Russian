@@ -62,6 +62,25 @@ if (hiveParams==null) {
     System.exit(0)
 }
 
-println "Hive parameters: " + hiveParams
+println "Hive parameters retrieved from ZooKeeper: " + hiveParams
+
+java.sql.Connection connectDb2(Properties props) {
+    String url = props.getProperty("db2.url")
+    if (url==null || url.length()==0) {
+        return null
+    }
+    String username = props.getProperty("db2.username")
+    String password = props.getProperty("db2.password")
+    if (username==null || username.length()==0)
+        return java.sql.DriverManager.getConnection(url)
+    return java.sql.DriverManager.getConnection(url, username, password)
+}
+
+println "Connecting to Db2 Warehouse..."
+
+Class.forName("com.ibm.db2.jcc.DB2Driver")
+connectDb2(props).withCloseable { con ->
+    println "Connection established, retrieving SERVER details..."
+}
 
 // End Of File

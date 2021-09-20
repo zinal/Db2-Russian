@@ -18,4 +18,7 @@
 -->
 <entry key="zk.host">cldr64.ibmcc.ru:2181</entry>
 <entry key="zk.ns">hiveserver2</entry>
+<entry key="db2.url">jdbc:db2://helper.apps.publicocp.ibmcc.ru:32086/BLUDB:securityMechanism=9;encryptionAlgorithm=2;</entry>
+<entry key="db2.username">techacc</entry>
+<entry key="db2.password">passw0rd</entry>
 </properties>
