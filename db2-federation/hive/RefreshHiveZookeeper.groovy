@@ -1,4 +1,6 @@
 // RefreshHiveZookeeper.groovy
+// Данный скрипт автоматически читает параметры подключения Hive из ZooKeeper и Db2,
+// сравнивает их и применяет изменения к соответствующему псевдониму Db2.
 
 import groovy.sql.Sql
 import java.util.concurrent.CountDownLatch
