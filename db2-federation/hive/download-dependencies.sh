@@ -51,10 +51,15 @@ if [ ! -f $MAIN_ZK/bin/zkCli.sh ]; then
 fi
 
 # Grab Db2 Client
-MAIN_DB2=.cache/db2jcc4.jar
-if [ ! -f $MAIN_DB2 ]; then
+DITTO_DB2=.cache/ditto/db2jcc4.jar
+if [ ! -f $DITTO_DB2 ]; then
   echo "NOTE: downloading Db2 Client" >&2
-  $CURL -o $MAIN_DB2 $URL_DB2
+  $CURL -o $DITTO_DB2 $URL_DB2
+fi
+
+MAIN_DB2=$MAIN_ZK/lib/db2jcc4.jar
+if [ ! -f $MAIN_DB2  ]; then
+  cp $DITTO_DB2 $MAIN_DB2
 fi
 
 # Grab Groovy
