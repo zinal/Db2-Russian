@@ -1,4 +1,5 @@
 #! /bin/sh
+# Dependency setup script for Zookeeper-based Hive federation on Db2 program.
 
 set -e
 set +u
@@ -86,3 +87,5 @@ if [ ! -f $MAIN_GROOVY/bin/groovy ]; then
   mv $TEMP_GROOVY $MAIN_GROOVY
   rm -rf .cache/temp
 fi
+
+# End Of File
