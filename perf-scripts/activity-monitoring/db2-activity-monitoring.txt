@@ -1,0 +1,83 @@
+# Пример настройки мониторинга выполнения операторов Db2
+#   https://www.ibm.com/docs/en/db2/11.5?topic=monitoring-configuring-data-collection-activities-event-monitor
+#   https://www.ibm.com/docs/en/db2/11.5?topic=monitoring-creating-activity-event-monitor
+#   https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-event-monitor-activities
+
+# Создание и активация тестовой БД
+db2 create db demo1
+db2 activate db demo1
+# Открытие подключения к тестовой БД
+db2 connect to demo1
+
+# Если нет буферного пула размером 32 КБ, создаём его
+db2 create bufferpool evmon1 pagesize 32768
+# Настраиваем автоматическое управление размером буферного пула
+# (если используется STMM, иначе - выделить фиксированный объём)
+db2 alter bufferpool evmon1 size 5000 automatic
+
+# Создание отдельного табличного пространства под данные мониторинга.
+# Рекомендуется использовать размер страницы 32 КБ,
+# иначе работа с CLOB-объектами будет замедлять запись и чтение
+# данных мониторинга.
+db2 create tablespace evmon1 pagesize 32768 bufferpool evmon1
+
+# Создание монитора активностей. Таблицы создаются автоматически.
+# В данном примере имена всех таблиц определены по умолчанию, указываем только табличное пространство.
+db2 'create event monitor evmon1 for activities write to table activity (in evmon1), activitymetrics (in evmon1), activitystmt (in evmon1), activityvals (in evmon1), control (in evmon1) manualstart';
+
+# Вывод списка имён таблиц + валидация имени табличного пространства
+db2 "select varchar(tabschema||'.'||tabname,40),varchar(tbspace,20) from syscat.tables where tabname like '%EVMON1%'"
+
+# Пример вывода команды выше
+1                                        2                   
+---------------------------------------- --------------------
+DB2INST1.ACTIVITYSTMT_EVMON1             EVMON1              
+DB2INST1.CONTROL_EVMON1                  EVMON1              
+DB2INST1.ACTIVITY_EVMON1                 EVMON1              
+DB2INST1.ACTIVITYVALS_EVMON1             EVMON1              
+DB2INST1.ACTIVITYMETRICS_EVMON1          EVMON1              
+
+  5 record(s) selected.
+
+# Получание списка рабочих нагрузок
+db2 "select workloadname from syscat.workloads"
+
+# Ниже стандартный вывод, если не было кастомизаций.
+# Если были кастомизации, надо разбираться, какие из нагрузок следует мониторить.
+1                                                 
+--------------------------------------------------
+SYSDEFAULTUSERWORKLOAD                            
+SYSDEFAULTADMWORKLOAD                             
+
+  2 record(s) selected.
+
+# Проверяем, активирован ли сбор данных о выполнении операторов.
+# См. https://www.ibm.com/docs/en/db2/11.5?topic=views-syscatworkloads
+# (описание поля COLLECTACTDATA)
+db2 "select collectactdata from syscat.workloads where workloadname='SYSDEFAULTUSERWORKLOAD'"
+
+COLLECTACTDATA
+--------------
+N             
+
+  1 record(s) selected.
+
+# Если данные не собираются, включаем сбор
+db2 "alter workload SYSDEFAULTUSERWORKLOAD collect activity data on all members with details"
+
+# Включаем запись данных монитором событий
+db2 "set event monitor evmon1 state 1"
+
+# Выполнение пользовательской нагрузки.
+# Можно закрыть сессию Db2, монитор останется включённым.
+
+# Выключаем запись данных монитором событий
+db2 "set event monitor evmon1 state 0"
+
+# Опционально: для параллельного сбора общей статистики производительности
+# можно использовать dbmon либо monreport, например:
+
+db2 "call monreport.dbsummary(600)" > dbsummary-10minutes.txt
+
+# Команда выше выполняется 600 секунд (10 минут), и печатает сводную статистику
+# производительности Db2 на этом интервале.
