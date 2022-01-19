@@ -5,7 +5,8 @@
 
 ## 1. Установить клиента IBM Db2 CLI/ODBC для используемой операционной системы.
 
-Актуального клиента IBM Db2 можно скачать с сайта IBM Fix Central, ссылки для скачивания доступны на
+Актуальную версию клиента IBM Db2 можно скачать с сайта IBM Fix Central, ссылки
+для скачивания доступны на
 [следующей странице](https://www.ibm.com/support/pages/download-fix-packs-version-ibm-data-server-client-packages).
 Для скачивания требуется IBM ID, регистрация бесплатна.
 
@@ -95,8 +96,10 @@ IBM Db2 для Ruby, можно предварительно скачать пр
 его сборку по следующей
 [инструкции](https://github.com/ibmdb/ruby-ibmdb/blob/master/IBM_DB_Adapter/ibm_db/README).
 
-Собранный локально драйвер затем должен быть установлен командой
-`gem install --local ibm_db-5.2.0.gem`.
+Собранный локально драйвер затем должен быть установлен следующей командой:
+```bash
+gem install --local ibm_db-5.2.0.gem
+```
 
 Временно (январь 2022 года) существуют проблемы со сборкой адаптера на современных
 системах (например, использующих GCC 10.2 и старше). Исправление подготовлено и будет
@@ -107,3 +110,17 @@ IBM Db2 для Ruby, можно предварительно скачать пр
 
 Проверка работоспособности адаптера IBM Db2 для Ruby производится по инструкции в
 [документации](https://www.ibm.com/docs/en/db2/11.5?topic=idrdraarg-verifying-db-ruby-driver-installation-interactive-ruby-shell).
+
+Пример команд по проверке работоспособности и их вывод:
+```
+ irb
+irb(main):001:0> require 'ibm_db'
+=> true
+irb(main):002:0> conn = IBM_DB.connect 'pubwh1','mzinal','passw0rd$'
+=> #<IBM_DB::Connection:0x0000562f87933660>
+irb(main):003:0> stmt = IBM_DB.exec conn,'select tabschema, CAST(count(*) AS INTEGER) as cnt from syscat.tables group by tabschema'
+=> #<IBM_DB::Statement:0x0000562f874c5240>
+irb(main):004:0> IBM_DB.fetch_assoc stmt 
+=> {"TABSCHEMA"=>"BANKING ", "CNT"=>8}
+irb(main):005:0> 
+```
