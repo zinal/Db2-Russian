@@ -181,12 +181,15 @@ irb(main):005:0>
 Адаптер IBM Db2 для Ruby поддерживает функцию вызова хранимых процедур с использованием
 оператора `CALL`. Если хранимая процедура возвращает наборы результатов, адаптер
 позволяет получить данные первого из возвращаемых наборов результатов.
-Для обеспечения доступа ко второму и последующим наборам результатов необходима
-(по состоянию на январь 2022 года) доработка адаптера IBM Db2 для Ruby.
+Для получения следующего набора результатов (при наличии) предназначен
+метод `IBM_DB.next_result`, в который в качестве аргумента передаётся
+оператор, выполненный методом `IBM_DB.exec` (с прямой передачей текста
+SQL) либо `IBM_DB.execute` (с передачей ранее подготовленного
+вызовом `IBM_DB.prepare` оператора).
 
-Пример скрипта создания хранимой процедуры, возвращающей набор результатов:
+Пример скрипта создания хранимой процедуры, возвращающей три набора результатов:
 
-```SQL
+```sql
 CREATE TABLE ibmuser.mvzdemo1(
   a INTEGER NOT NULL PRIMARY KEY,
   b VARCHAR(100),
@@ -198,31 +201,47 @@ INSERT INTO ibmuser.mvzdemo1 VALUES(2, 'Two',   265741606845678100) @
 INSERT INTO ibmuser.mvzdemo1 VALUES(3, 'Three', 398612410268517150) @
 
 CREATE OR REPLACE PROCEDURE ibmuser.mvzproc1()
-  DYNAMIC RESULT SETS 1
+  DYNAMIC RESULT SETS 3
 BEGIN
   DECLARE c1 CURSOR WITH RETURN
+    FOR SELECT CURRENT TIMESTAMP FROM sysibm.sysdummy1;
+  DECLARE c2 CURSOR WITH RETURN
+    FOR SELECT MIN(c), MAX(c) FROM ibmuser.mvzdemo1;
+  DECLARE c3 CURSOR WITH RETURN
     FOR SELECT * FROM ibmuser.mvzdemo1;
   OPEN c1;
+  OPEN c2;
+  OPEN c3;
 END @
 ```
 
-Пример вызова хранимой процедуры и выдачи её результата в среде Ruby:
+Пример вызова хранимой процедуры и выдачи её наборов результатов в среде Ruby:
 
 ```bash
 $ irb
 irb(main):001:0> require 'ibm_db'
 => true
 irb(main):002:0> conn = IBM_DB.connect 'pubwh1','mzinal','passw0rd$'
-=> #<IBM_DB::Connection:0x00005637f4ae5880>
+=> #<IBM_DB::Connection:0x00007fefc78ade78>
 irb(main):003:0> stmt = IBM_DB.exec conn, 'call ibmuser.mvzproc1()'
-=> #<IBM_DB::Statement:0x00005637f4706fe8>
+=> #<IBM_DB::Statement:0x00007fefc6b9ebd8>
 irb(main):004:0> IBM_DB.fetch_assoc stmt
-=> {"A"=>1, "B"=>"One", "C"=>"132870803422839050"}
-irb(main):005:0> IBM_DB.fetch_assoc stmt
-=> {"A"=>2, "B"=>"Two", "C"=>"265741606845678100"}
-irb(main):006:0> IBM_DB.fetch_assoc stmt
-=> {"A"=>3, "B"=>"Three", "C"=>"398612410268517150"}
-irb(main):007:0> IBM_DB.fetch_assoc stmt
+=> {"1"=>"2022-01-20 14:30:53.058067"}
+irb(main):005:0> stmt2 = IBM_DB.next_result stmt
+=> #<IBM_DB::Statement:0x00007fefc6cb5378>
+irb(main):006:0> IBM_DB.fetch_assoc stmt2
+=> {"1"=>"132870803422839050", "2"=>"398612410268517150"}
+irb(main):007:0> IBM_DB.fetch_assoc stmt2
 => false
-irb(main):008:0> 
+irb(main):008:0> stmt3 = IBM_DB.next_result stmt
+=> #<IBM_DB::Statement:0x00007fefc6ab4268>
+irb(main):009:0> IBM_DB.fetch_assoc stmt3
+=> {"A"=>1, "B"=>"One", "C"=>"132870803422839050"}
+irb(main):010:0> IBM_DB.fetch_assoc stmt3
+=> {"A"=>2, "B"=>"Two", "C"=>"265741606845678100"}
+irb(main):011:0> IBM_DB.fetch_assoc stmt3
+=> {"A"=>3, "B"=>"Three", "C"=>"398612410268517150"}
+irb(main):012:0> IBM_DB.fetch_assoc stmt3
+=> false
+irb(main):013:0> 
 ```
