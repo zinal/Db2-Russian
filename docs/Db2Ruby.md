@@ -157,14 +157,14 @@ gem install --local ibm_db-5.2.0.gem
 включено в основной код адаптера. Временно можно использовать исправленную копию кода
 в [следующем репозитории](https://github.com/zinal/ruby-ibmdb).
 
-## 7. Проверить работспособность адаптера IBM Db2 для Ruby
+## 7. Проверить работоспособность адаптера IBM Db2 для Ruby
 
 Проверка работоспособности адаптера IBM Db2 для Ruby производится по инструкции в
 [документации](https://www.ibm.com/docs/en/db2/11.5?topic=idrdraarg-verifying-db-ruby-driver-installation-interactive-ruby-shell).
 
 Пример команд по проверке работоспособности и их вывод:
-```
- irb
+```bash
+$ irb
 irb(main):001:0> require 'ibm_db'
 => true
 irb(main):002:0> conn = IBM_DB.connect 'pubwh1','mzinal','passw0rd$'
@@ -174,4 +174,55 @@ irb(main):003:0> stmt = IBM_DB.exec conn,'select tabschema, CAST(count(*) AS INT
 irb(main):004:0> IBM_DB.fetch_assoc stmt 
 => {"TABSCHEMA"=>"BANKING ", "CNT"=>8}
 irb(main):005:0> 
+```
+
+## 8. Пример вызова хранимой процедуры, возвращающей набор результатов
+
+Адаптер IBM Db2 для Ruby поддерживает функцию вызова хранимых процедур с использованием
+оператора `CALL`. Если хранимая процедура возвращает наборы результатов, адаптер
+позволяет получить данные первого из возвращаемых наборов результатов.
+Для обеспечения доступа ко второму и последующим наборам результатов необходима
+(по состоянию на январь 2022 года) доработка адаптера IBM Db2 для Ruby.
+
+Пример скрипта создания хранимой процедуры, возвращающей набор результатов:
+
+```SQL
+CREATE TABLE ibmuser.mvzdemo1(
+  a INTEGER NOT NULL PRIMARY KEY,
+  b VARCHAR(100),
+  c BIGINT
+) @
+
+INSERT INTO ibmuser.mvzdemo1 VALUES(1, 'One',   132870803422839050) @
+INSERT INTO ibmuser.mvzdemo1 VALUES(2, 'Two',   265741606845678100) @
+INSERT INTO ibmuser.mvzdemo1 VALUES(3, 'Three', 398612410268517150) @
+
+CREATE OR REPLACE PROCEDURE ibmuser.mvzproc1()
+  DYNAMIC RESULT SETS 1
+BEGIN
+  DECLARE c1 CURSOR WITH RETURN
+    FOR SELECT * FROM ibmuser.mvzdemo1;
+  OPEN c1;
+END @
+```
+
+Пример вызова хранимой процедуры и выдачи её результата в среде Ruby:
+
+```bash
+$ irb
+irb(main):001:0> require 'ibm_db'
+=> true
+irb(main):002:0> conn = IBM_DB.connect 'pubwh1','mzinal','passw0rd$'
+=> #<IBM_DB::Connection:0x00005637f4ae5880>
+irb(main):003:0> stmt = IBM_DB.exec conn, 'call ibmuser.mvzproc1()'
+=> #<IBM_DB::Statement:0x00005637f4706fe8>
+irb(main):004:0> IBM_DB.fetch_assoc stmt
+=> {"A"=>1, "B"=>"One", "C"=>"132870803422839050"}
+irb(main):005:0> IBM_DB.fetch_assoc stmt
+=> {"A"=>2, "B"=>"Two", "C"=>"265741606845678100"}
+irb(main):006:0> IBM_DB.fetch_assoc stmt
+=> {"A"=>3, "B"=>"Three", "C"=>"398612410268517150"}
+irb(main):007:0> IBM_DB.fetch_assoc stmt
+=> false
+irb(main):008:0> 
 ```
