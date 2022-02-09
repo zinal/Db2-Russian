@@ -1,6 +1,7 @@
 # Connecting to Greenplum using Db2 Federation
 
-[Official instruction from IBM](https://www.ibm.com/support/pages/how-query-greenplum-data-source-using-federation-server-through-jdbc-driver)
+In addition to this document, there is also an
+[official instruction from IBM](https://www.ibm.com/support/pages/how-query-greenplum-data-source-using-federation-server-through-jdbc-driver)
 
 Currently (Db2 11.5.7) ODBC access to Greenplum is possible, but query offload is limited.
 For example, `COUNT` and `COUNT_BIG` are not offloaded.
