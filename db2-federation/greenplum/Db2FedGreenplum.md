@@ -1,5 +1,11 @@
 # Connecting to Greenplum using Db2 Federation
 
+In addition to this document, there are also official instructions from IBM:
+- [ODBC example](https://www.ibm.com/support/pages/how-access-data-greenplum-using-db2-federation-server);
+- [the second ODBC example](https://www.ibm.com/support/pages/how-query-greenplum-using-db2-federation-through-odbc-driver);
+- [JDBC example](https://www.ibm.com/support/pages/how-query-greenplum-data-source-using-federation-server-through-jdbc-driver).
+
+
 ## 1. Server object creation
 
 ### 1.1 Option 1: using the ODBC wrapper
@@ -21,9 +27,6 @@ CREATE SERVER gp_srv TYPE greenplum OPTIONS
 ```
 
 ### 1.2 Option 2: Using the JDBC wrapper
-
-In addition to this document, there is also an
-[official instruction from IBM](https://www.ibm.com/support/pages/how-query-greenplum-data-source-using-federation-server-through-jdbc-driver)
 
 Wrapper creation for JDBC is shown below (single wrapper is needed for all server objects).
 
