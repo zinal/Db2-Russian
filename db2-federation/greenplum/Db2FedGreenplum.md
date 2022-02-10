@@ -6,7 +6,8 @@
 
 Currently (Db2 11.5.7) ODBC access to Greenplum requires the manual setup
 of the additional option: `db2_select_col_only 'N'`. If it is not set up
-properly, `COUNT` and other functions are not offloaded.
+properly, `COUNT` and other functions are not pushed down to the source
+server, which may lead to additional traffic and slower query execution.
 
 Server object creation command is shown below:
 
