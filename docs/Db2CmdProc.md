@@ -51,14 +51,16 @@ db2 update dbm cfg using \
 Добавляем полученный сертификат в базу данных ключей:
 
 ```bash
-gsk8capicmd_64 -cert -add -db "/home/db2inst1/certz/client_ssl.kdb" -pw passw0rd \
+gsk8capicmd_64 -cert -add \
+  -db "/home/db2inst1/certz/client_ssl.kdb" -pw passw0rd \
   -file "/home/db2inst1/certz/db2wh1.pem" -format ascii
 ```
 
 Затем можно проверить содержимое базы данных:
 
 ```bash
-gsk8capicmd_64 -cert -list -db "/Db2Wh/certz/client_ssl.kdb" -pw passw0rd
+gsk8capicmd_64 -cert -list \
+  -db "/Db2Wh/certz/client_ssl.kdb" -pw passw0rd
 ```
 
 ### 4. Настройка подключения к БД Db2
