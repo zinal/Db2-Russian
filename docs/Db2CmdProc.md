@@ -37,12 +37,13 @@ db2 get dbm cfg | grep SSL_CLNT_KEYDB
 При отсутствии базы данных ключей создаём её и настраиваем её использование:
 
 ```bash
-gsk8capicmd_64 -keydb -create -db "/home/db2inst1/certz/client_ssl.kdb" -pw passw0rd -stash
+gsk8capicmd_64 -keydb -create \
+  -db "/home/db2inst1/certz/client_ssl.kdb" \
+  -pw passw0rd -stash
 
-db2 -t
-update dbm cfg using 
-  SSL_CLNT_KEYDB "/home/db2inst1/certz/client_ssl.kdb"
-  SSL_CLNT_STASH "/home/db2inst1/certz/client_ssl.sth";
+db2 update dbm cfg using \
+  SSL_CLNT_KEYDB "/home/db2inst1/certz/client_ssl.kdb" \
+  SSL_CLNT_STASH "/home/db2inst1/certz/client_ssl.sth"
 ```
 
 ### 3. Регистрация сертификата
