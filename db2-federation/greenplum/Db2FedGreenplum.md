@@ -15,12 +15,12 @@ of the additional option: `DB2_SELECT_COL_ONLY 'N'`. If it is not set up
 properly, `COUNT` and other functions are not pushed down to the source
 server, which may lead to additional traffic and slower query execution.
 
-For pushdown of operations of character strings, `DB2_SAME_STR_COMP_SEMANTICS 'Y'`
+For pushdown of operations on character strings, `DB2_SAME_STR_COMP_SEMANTICS 'Y'`
 option is needed as well. To handle long strings, currently the character
 string limit should be defined as `DB2_LONGSTRING_LIMIT '32672'`.
 
-In order to enable the pushdown of sorts over strings, `COLLATING_SEQUENCE 'Y'`
-needs to be specified.
+In order to enable the pushdown of sorts and comparison operations over strings,
+`COLLATING_SEQUENCE 'Y'` needs to be specified, too.
 
 If the character strings do not contain trailing blanks, or if the comparison
 logic for the trailing blanks is not important, `VARCHAR_NO_TRAILING_BLANKS 'Y'`
@@ -51,7 +51,7 @@ CREATE SERVER gp_srv TYPE greenplum OPTIONS
 Wrapper creation for JDBC is shown below (single wrapper is needed for all server objects).
 
 ```SQL
-CREATE WRAPPER gpjdbc_srv LIBRARY 'libdb2rcjdbc.so' OPTIONS (DB2_FENCED 'Y');
+CREATE WRAPPER gpjdbc LIBRARY 'libdb2rcjdbc.so' OPTIONS (DB2_FENCED 'Y');
 ```
 
 We need to check/validate the path to the JDBC driver package.
@@ -65,7 +65,7 @@ Example locations for the `sqllib`:
 Server object creation command is shown below:
 
 ```SQL
-CREATE SERVER gp_srv TYPE GREENPLUM WRAPPER "gpjdbc" OPTIONS 
+CREATE SERVER gp_srv TYPE GREENPLUM WRAPPER gpjdbc OPTIONS 
   (DRIVER_CLASS  'com.ibm.fluidquery.jdbc.greenplum.GreenplumDriver' ,
    DRIVER_PACKAGE  '<instance_homedir>/sqllib/federation/jdbc/lib/FOgreenplum.jar',
    URL  'jdbc:ibm:greenplum://<hostname>:5432;DatabaseName=<dbname>',
@@ -134,4 +134,35 @@ after the column's local data type is switched from `CLOB` to `VARCHAR(N)`):
 
 ```SQL
 SELECT MAX(LENGTH(columns1) FROM gp.schema1_table1;
+```
+
+## 5 Extra step: Pushdown analysis using Db2 trace
+
+```bash
+db2 connect to bigsql
+db2 -t
+
+!db2trc on -f trc1.dmp -m SQLND,SQLQG,SQLQG_JDBC;
+explain plan for <problematic query>;
+!db2trc off;
+quit;
+
+db2trc flw trc1.dmp trc1.flw;
+db2trc fmt trc1.dmp trc1.fmt;
+```
+
+In `trc1.fmt` look for the first `pushdown=0` entry.
+It should reveal the reason for switching the pushdown off.
+The example is provided below.
+
+```
+8488	data DB2 UDB SW- pushdown analysis sqlnd_comparand_pda fnc (3.3.58.40.0.121)
+	pid 767123 tid 47034635642624 cpid 767173 node 0 probe 121
+	bytes 60
+
+	Data1 	(PD_TYPE_HEXDUMP,52) Hexdump:
+	7075 7368 646F 776E 3D30 2069 6E20 7371    pushdown=0 in sq
+	6C6E 645F 636F 6D70 6172 616E 645F 7064    lnd_comparand_pd
+	6120 286C 6F6E 6773 7472 696E 675F 6C69    a (longstring_li
+	6D69 7429                                  mit)
 ```
