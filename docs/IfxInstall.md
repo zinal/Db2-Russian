@@ -117,3 +117,36 @@ MULTIPROCESSOR 1
 VPCLASS cpu,num=4,noage
 VP_MEMORY_CACHE_KB 16384,DYNAMIC
 ```
+
+## 6. Установка переменных окружения для учётной записи Informix
+
+Значения переменных окружения для работы сервера Informix рекомендуется установить в файле настроек профиля пользователя `informix`, с тем, чтобы они автоматически устанавливались при входе в систему.
+
+Пример файла `.profile` для пользователя `informix` приведён ниже:
+
+```bash
+ .profile for informix
+
+INFORMIXDIR=/opt/informix
+export INFORMIXDIR
+
+ONCONFIG=$INFORMIXDIR/etc/onconfig.ifx1
+export ONCONFIG
+
+INFORMIXSQLHOSTS=$INFORMIXDIR/etc/sqlhosts.ifx1
+export INFORMIXSQLHOSTS
+
+GL_USEGLU=1
+export GL_USEGLU
+
+DB_LOCALE=en_us.utf8
+export DB_LOCALE
+
+PATH=$PATH:$INFORMIXDIR/bin
+export PATH
+
+# End Of File
+```
+
+См. описание порядка настройки переменных окружения в официальной
+[документации](https://www.ibm.com/docs/en/informix-servers/14.10?topic=installation-setting-environment-variables).
