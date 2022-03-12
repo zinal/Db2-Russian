@@ -95,12 +95,12 @@ chown -R informix:informix /ifxdata
 chmod -R 700 /ifxdata
 ```
 
-Пример команд для выделения файла под root dbspace стандартного (300000 Кбайт) размера:
+Пример команд для выделения пустого файла под root dbspace:
 
 ```bash
 # Выполняется от имени пользователя informix
 cd /ifxdata/ifx1
-dd if=/dev/zero of=rootdbs0 bs=1000K count=300
+cat /dev/null >rootdbs0
 chmod 660 rootdbs0
 ```
 
@@ -270,12 +270,10 @@ LISTEN     0      100                 [::1]:25                               [::
 ```bash
 # Команды ниже выполняются от имени пользователя informix
 cd /ifxdata/ifx1
-dd if=/dev/zero of=plogspace0 bs=1M count=2048
+cat /dev/null >plogspace0
 chmod 660 plogspace0
-# Инициализация plogspace
+# Создание plogspace и переключение на него
 onspaces -c -P plogspace -p /ifxdata/ifx1/plogspace0 -o 0 -s 2097152
-# Перенос физического лога на созданный plogspace
-onparams -p -s 2097152 -d plogspace
 ```
 
 ## 2.2. Изменение размеров и размещения логического лога
@@ -284,9 +282,30 @@ onparams -p -s 2097152 -d plogspace
 используется Informix для ведения истории изменения данных с момента создания последней
 резервной копии, а также при решении задач репликации данных.
 
-## 2.3. Изменение размещения временных таблиц
+Для размещения логического лога на отдельной группе устройств необходимо создать dbspace
+и настроить сервер Informix для хранения логического лога в новом dbspace.
 
-## 2.4. Создание основных областей хранения данных
+```bash
+cd /ifxdata/ifx1
+cat /dev/null >llog0
+chmod 660 llog0
+onspaces -c -d llog -p /ifxdata/ifx1/llog0 -o 0 -s 2097152
+```
+
+## 2.3. Создание основных областей хранения данных
+
+Для хранения таблиц и индексов необходимо создать дополнительные объекты
+[dbspace](https://www.ibm.com/docs/en/informix-servers/14.10?topic=storage-dbspaces)
+
+```bash
+cd /ifxdata/ifx1
+cat /dev/null >work1_0
+chmod 660 work1_0
+onspaces -c -d work1 -p /ifxdata/ifx1/work1_0 -o 0 -s 2097152
+```
+
+
+## 2.4. Изменение размещения временных таблиц
 
 ## 2.5. Создание баз данных
 
