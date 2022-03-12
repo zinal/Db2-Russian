@@ -1,6 +1,14 @@
 # 1. Первоначальная установка сервера Informix
 
 Инструкция подготовлена для операционной системы Linux на примере Informix 14.10, для более ранних версий есть отличия в порядке действий.
+Инструкция готовилась и проверялась под управлением ОС CentOS 7.9, со следующими установленными дополнительными пакетами:
+
+```bash
+yum install -y libaio libgcc libstdc++ ncurses pam elfutils-libelf
+```
+
+Точный состав зависимостей приводится в документах Machine Notes к конкретной версии Informix, см.
+[пример](https://www.ibm.com/docs/en/informix-servers/14.10?topic=notes-linux-x86-64).
 
 ## 1.1. Установка программного обеспечения Informix
 
@@ -92,7 +100,7 @@ chmod -R 700 /ifxdata
 ```bash
 # Выполняется от имени пользователя informix
 cd /ifxdata/ifx1
-dd if=/dev/zero of=rootdbs0 bs=1000K count=300
+cat /dev/null > rootdbs0
 chmod 660 rootdbs0
 ```
 
@@ -123,8 +131,8 @@ vi onconfig.ifx1
 * `MULTIPROCESSOR` - включение поддержки многоядерных и многопроцессорных систем;
 * `VPCLASS` - количество разрешённых виртуальных процессоров;
 * `VP_MEMORY_CACHE_KB` - размер кэша частной памяти виртуального процессора;
-* `BUFFERPOOL` - настройка буферных пулов;
-* `DIRECT_IO` - использование режиме direct io для исключения двойной буферизации файлов.
+* `DIRECT_IO` - использование режиме direct io для исключения двойной буферизации файлов;
+* `BUFFERPOOL` - настройка буферных пулов.
 
 Пример изменённых настроек параметров в копии файла `onconfig.std`:
 
@@ -138,6 +146,7 @@ DBSERVERALIASES ifx1_shm
 MULTIPROCESSOR 1
 VPCLASS cpu,num=4,noage
 VP_MEMORY_CACHE_KB 16384,DYNAMIC
+DIRECT_IO 1
 ```
 
 ## 1.6. Настройка конфигурации сетевых подключений
