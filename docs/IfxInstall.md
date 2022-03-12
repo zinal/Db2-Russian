@@ -71,11 +71,21 @@ usermod -d /home/informix informix
 Пример команд для минимальной настройки каталога данных для размещения файлов Informix, относящихся к серверу с именем `ifx1`:
 
 ```bash
+# Выполняется от имени пользователя root
 mkdir /ifxdata
 mkdir /ifxdata/ifx1
 mkdir /ifxdata/ifx1/tmp
 chown -R informix:informix /ifxdata
 chmod -R 700 /ifxdata
+```
+
+Пример команд для выделения файла под root dbspace стандартного (300000 Кбайт) размера:
+
+```bash
+# Выполняется от имени пользователя informix
+cd /ifxdata/ifx1
+dd if=/dev/zero of=rootdbs0 bs=1000K count=300
+chmod 660 rootdbs0
 ```
 
 ## 5. Настройка основных параметров сервера Informix
@@ -108,7 +118,7 @@ vi onconfig.ifx1
 Пример изменённых настроек параметров в копии файла `onconfig.std`:
 
 ```
-ROOTPATH /ifxdata/ifx1/rootdbs
+ROOTPATH /ifxdata/ifx1/rootdbs0
 PLOG_OVERFLOW_PATH  /ifxdata/ifx1/tmp
 MSGPATH /ifxdata/ifx1/tmp/online.log
 CONSOLE /ifxdata/ifx1/tmp/online.con
@@ -181,3 +191,14 @@ export PATH
 
 См. описание порядка настройки переменных окружения в официальной
 [документации](https://www.ibm.com/docs/en/informix-servers/14.10?topic=installation-setting-environment-variables).
+
+## 8. Инициализация сервера Informix
+
+Перед инициализацией сервера Informix должны быть установлены переменные окружения 
+`INFORMIXDIR`, `ONCONFIG`, `INFORMIXSQLHOSTS`.
+
+Для инициализации сервера Informix должна быть выполнена следующая команда:
+
+```bash
+oninit -i
+```
