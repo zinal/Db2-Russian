@@ -103,7 +103,8 @@ vi onconfig.ifx1
 ```
 
 Обычно требуется установить, как минимум, следующие параметры:
-* `DBSERVERNAME` - имя сервера Informix;
+* `DBSERVERNAME` - основное имя сервера Informix;
+* `DBSERVERALIASES` - дополнительные имена сервера Informix (используются для задания дополнительных протоколов доступа в файле `sqlhosts`);
 * `ROOTPATH` - путь к файлу root dbspace;
 * `PLOG_OVERFLOW_PATH` - путь к каталогу для размещения дополнительных файлов физического лога при его переполнении.
 
@@ -123,6 +124,7 @@ PLOG_OVERFLOW_PATH  /ifxdata/ifx1/tmp
 MSGPATH /ifxdata/ifx1/tmp/online.log
 CONSOLE /ifxdata/ifx1/tmp/online.con
 DBSERVERNAME ifx1
+DBSERVERALIASES ifx1_shm
 MULTIPROCESSOR 1
 VPCLASS cpu,num=4,noage
 VP_MEMORY_CACHE_KB 16384,DYNAMIC
@@ -153,8 +155,8 @@ vi sqlhosts.ifx1
 Пример файла `sqlhosts` с настройкой сетевых подключений к серверу Informix по локальному протоколу общей памяти и по протоколу TCP:
 
 ```
-ifx1	onipcshm	ifx1	on_ifx1
 ifx1	onsoctcp	ifx1	on_ifx1
+ifx1_shm	onipcshm	ifx1	on_ifx1_shm
 ```
 
 ## 7. Установка переменных окружения для учётной записи Informix
@@ -202,3 +204,30 @@ export PATH
 ```bash
 oninit -i
 ```
+
+При неправильной настройке инициализация может завершиться аварийно.
+Сообщение об этом будет выведено в терминал, детальная информация доступна в файле сообщений
+сервера, размещение которого установлено параметром `MSGPATH`.
+
+После успешного завершения инициализации сервер Informix доступен и готов к использованию.
+Проконтролировать доступность сервера Informix через TCP/IP можно по факту наличия прослушиваемого порта:
+
+```
+$ grep on_ifx1 /etc/services 
+on_ifx1		35000/tcp
+$ ss -ln --tcp
+State      Recv-Q Send-Q      Local Address:Port                     Peer Address:Port              
+LISTEN     0      128                     *:22                                  *:*                  
+LISTEN     0      512         192.168.7.101:35000                               *:*                  
+LISTEN     0      100             127.0.0.1:25                                  *:*                  
+LISTEN     0      128                     *:50000                               *:*                  
+LISTEN     0      128                  [::]:22                               [::]:*                  
+LISTEN     0      100                 [::1]:25                               [::]:* 
+```
+
+В выводе команд выше видно, что порт `35000`, назначенный для сервиса `on_ifx1`, доступен для подключений.
+
+Типичные действия по донастройке сервера Informix после его инициализации приведены в следующем разделе.
+
+## 9. Донастройка сервера Informix после инициализации
+
