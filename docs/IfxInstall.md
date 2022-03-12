@@ -34,3 +34,16 @@ sudo ./ids_install
 * EE : Express Edition
 * CE : Choice Edition
 * DE : Developer Edition
+
+## 3. Настройка учётной записи informix
+
+При инсталляции создаётся учётная запись `informix` - владелец сервиса.
+По умолчанию домашний каталог учётной записи установлен в корневой каталог `/`, что неудобно для выполнения настройки профиля.
+Для изменения домашнего каталога следующий набор команд, выполняемых от имени пользователя `root`:
+
+```bash
+mkdir /home/informix
+chown informix:informix /home/informix
+chmod 700 /home/informix
+usermod -d /home/informix informix
+```
