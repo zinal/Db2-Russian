@@ -62,7 +62,7 @@ usermod -d /home/informix informix
 Владельцем соответствующих каталогов и файлов должен быть пользователь `informix`.
 
 Для высоко-нагруженных систем рекомендуется использование отдельных устройств хранения или их групп для размещения следующих видов информации:
-* инсталляционных файлов Informix и операционной системы;
+* программных файлов Informix и операционной системы;
 * файлов данных Informix (dbspace, sbspace);
 * физических и логических логов Informix.
 
@@ -73,6 +73,7 @@ usermod -d /home/informix informix
 ```bash
 mkdir /ifxdata
 mkdir /ifxdata/ifx1
+mkdir /ifxdata/ifx1/tmp
 chown -R informix:informix /ifxdata
 chmod -R 700 /ifxdata
 ```
@@ -91,3 +92,28 @@ cp onconfig.std onconfig.ifx1
 vi onconfig.ifx1
 ```
 
+Обычно требуется установить, как минимум, следующие параметры:
+* `DBSERVERNAME` - имя сервера Informix;
+* `ROOTPATH` - путь к файлу root dbspace;
+* `PLOG_OVERFLOW_PATH` - путь к каталогу для размещения дополнительных файлов физического лога при его переполнении.
+
+Часто также донастраиваются следующие параметры:
+* `MSGPATH` - путь к файлу сообщений сервера Informix;
+* `CONSOLE` - путь к файлу консольных сообщений сервера Informix;
+* `MULTIPROCESSOR` - включение поддержки многоядерных и многопроцессорных систем;
+* `VPCLASS` - количество разрешённых виртуальных процессоров;
+* `VP_MEMORY_CACHE_KB` - размер кэша частной памяти виртуального процессора;
+* `BUFFERPOOL` - настройка буферных пулов.
+
+Пример изменённых настроек параметров в копии файла `onconfig.std`:
+
+```
+ROOTPATH /ifxdata/ifx1/rootdbs
+PLOG_OVERFLOW_PATH  /ifxdata/ifx1/tmp
+MSGPATH /ifxdata/ifx1/tmp/online.log
+CONSOLE /ifxdata/ifx1/tmp/online.con
+DBSERVERNAME ifx1
+MULTIPROCESSOR 1
+VPCLASS cpu,num=4,noage
+VP_MEMORY_CACHE_KB 16384,DYNAMIC
+```
