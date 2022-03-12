@@ -143,8 +143,8 @@ vi sqlhosts.ifx1
 Пример файла `sqlhosts` с настройкой сетевых подключений к серверу Informix по локальному протоколу общей памяти и по протоколу TCP:
 
 ```
-ipc_ifx1	onipcshm	ifx1	on_ifx1
-tcp_ifx1	onsoctcp	ifx1	on_ifx1
+ifx1	onipcshm	ifx1	on_ifx1
+ifx1	onsoctcp	ifx1	on_ifx1
 ```
 
 ## 7. Установка переменных окружения для учётной записи Informix
