@@ -26,3 +26,11 @@ sudo ./ids_install
 ```bash
 /opt/informix/jvm/jre/bin/java -jar ee_edition.jar -i console
 ```
+
+[Коды редакций](https://www.ibm.com/support/pages/ibm-informix-version-number) в номере версии, выводимом через `onstat -`:
+* WE : Workgroup Edition
+* GE : Growth Edition
+* IE : Innovator-C Edition
+* EE : Express Edition
+* CE : Choice Edition
+* DE : Developer Edition
