@@ -100,7 +100,7 @@ chmod -R 700 /ifxdata
 ```bash
 # Выполняется от имени пользователя informix
 cd /ifxdata/ifx1
-cat /dev/null > rootdbs0
+dd if=/dev/zero of=rootdbs0 bs=1000K count=300
 chmod 660 rootdbs0
 ```
 
