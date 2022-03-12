@@ -296,25 +296,59 @@ onspaces -c -d work1 -p /ifxdata/ifx1/work1_0 -o 0 -s 2097152
 Пример вывода информации об областях хранения данных:
 
 ```
-$ onstat -d
+$ onstat -l
 
-IBM Informix Dynamic Server Version 14.10.FC4W1AEE -- On-Line -- Up 00:20:52 -- 208392 Kbytes
+IBM Informix Dynamic Server Version 14.10.FC4W1AEE -- On-Line -- Up 01:13:37 -- 208392 Kbytes
+
+Physical Logging
+Buffer bufused  bufsize  numpages   numwrits   pages/io
+  P-1  51       64       315        20         15.75
+      phybegin         physize    phypos     phyused    %used   
+      2:53             1048523    438        51         0.00    
+
+Logical Logging
+Buffer bufused  bufsize  numrecs    numpages   numwrits   recs/pages pages/io
+  L-3  0        32       3090       334        248        9.3        1.3     
+	Subsystem    numrecs    Log Space used
+	OLDRSAM      3061       322008        
+	SBLOB        5          252           
+	HA           24         1056          
+
+address          number   flags    uniqid   begin                size     used    %used
+4553a050         5        U-B----- 5        3:53                16384      187     1.14
+4553a0b8         6        U-B----- 6        3:16437             16384       19     0.12
+4553a120         7        U-B---L- 7        3:32821             16384       67     0.41
+4553a188         8        U---C--- 8        3:49205             16384       67     0.41
+4553a1f0         9        A------- 0        3:65589             16384        0     0.00
+4553a258         10       A------- 0        3:81973             16384        0     0.00
+4553a2c0         11       A------- 0        3:98357             16384        0     0.00
+4553a328         12       A------- 0        3:114741            16384        0     0.00
+ 8 active, 8 total
+
+-bash-4.2$ onstat -d
+
+IBM Informix Dynamic Server Version 14.10.FC4W1AEE -- On-Line -- Up 01:14:45 -- 208392 Kbytes
 
 Dbspaces
 address          number   flags      fchunk   nchunks  pgsize   flags    owner    name
-45409028         1        0x30001    1        1        2048     N  BA    informix rootdbs
-4553a420         2        0x1030001  2        1        2048     N PBA    informix plogspace
-4553a660         3        0x20001    3        1        2048     N  BA    informix llog
-4553a8a0         4        0x20001    4        1        2048     N  BA    informix work1
- 4 active, 2047 maximum
+45409028         1        0x20001    1        1        2048     N  BA    informix rootdbs
+4553a420         2        0x1000001  2        1        2048     N PBA    informix plogspace
+4553a660         3        0x1        3        1        2048     N  BA    informix llog
+4553a8a0         4        0x1        4        1        2048     N  BA    informix work1
+4f532cf8         5        0x2001     5        1        2048     N TBA    informix temp1
+4ec166f0         6        0x8001     6        1        2048     N SBA    informix sbs1
+ 6 active, 2047 maximum
 
 Chunks
 address          chunk/dbs     offset     size       free       bpages     flags pathname
-45409268         1      1      0          150000     119855                PO-B-D /ifxdata/ifx1/rootdbs0
+45409268         1      1      0          150000     139845                PO-B-D /ifxdata/ifx1/rootdbs0
 4eddd028         2      2      0          1048576    0                     PO-BED /ifxdata/ifx1/plogspace0
 4edde028         3      3      0          1048576    917451                PO-B-D /ifxdata/ifx1/llog0
 4eddf028         4      4      0          1048576    1048523               PO-B-D /ifxdata/ifx1/work1_0
- 4 active, 32766 maximum
+4ec54028         5      5      0          1048576    1048523               PO-B-- /ifxdata/ifx1/temp1_0
+4fa7f028         6      6      0          524288     488925     488925     POSB-D /ifxdata/ifx1/sbs1_0
+                                 Metadata 35310      26274      35310   
+ 6 active, 32766 maximum
 
 NOTE: The values in the "size" and "free" columns for DBspace chunks are
       displayed in terms of "pgsize" of the DBspace to which they belong.
