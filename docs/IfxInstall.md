@@ -4,6 +4,8 @@
 
 ## 1. Установка программного обеспечения Informix
 
+Список [поддерживаемых операционных систем](http://www.ibm.com/support/docview.wss?uid=swg27013343).
+
 Распаковка дистрибутива:
 
 ```bash
@@ -18,10 +20,14 @@ sudo ./ids_install
 
 При установке выбран режим "Custom", с полным набором компонентов, но без инициализации сервера Informix.
 
+См. также инструкции в официальной [документации](https://www.ibm.com/docs/en/informix-servers/14.10?topic=installing-running-interactive-installation)
+
 ## 2. Применение лицензионного ключа
 
 Стандартный дистрибутив после установки активирует редакцию Informix Developer Edition.
-Для переключения на нужную редакцию используется компонент "Edition Installer", как показано ниже:
+Для переключения на нужную редакцию используется компонент 
+["Edition Installer"](https://www.ibm.com/docs/en/informix-servers/14.10?topic=installation-informix-edition-installer),
+как показано ниже:
 
 ```bash
 /opt/informix/jvm/jre/bin/java -jar ee_edition.jar -i console
