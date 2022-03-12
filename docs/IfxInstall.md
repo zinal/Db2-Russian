@@ -505,4 +505,7 @@ for x in `seq 1 6`; do onparams -d -l $x -y; done
 
 ```bash
 echo "create database mydb1 with log" | dbaccess sysmaster
+
+onmode -wf USERMAPPING=BASIC
+echo 'create user user1 with password "P@ssw0rd"' | dbaccess sysmaster
 ```
