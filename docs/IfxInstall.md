@@ -244,7 +244,7 @@ LISTEN     0      100                 [::1]:25                               [::
 скромные рабочие нагрузки и крайне ограниченные вычислительные ресурсы. В современных
 условиях большинство инсталляций производят донастройку Informix.
 
-## 2. Увеличение размеров физического лога
+## 2.1. Изменение размеров и размещения физического лога
 
 [Физический лог](https://www.ibm.com/docs/en/informix-servers/14.10?topic=administration-physical-logging-checkpoints-fast-recovery)
 используется Informix для обеспечения возможности отката незавершённых транзакций.
@@ -260,10 +260,20 @@ LISTEN     0      100                 [::1]:25                               [::
 ```bash
 # Команды ниже выполняются от имени пользователя informix
 cd /ifxdata/ifx1
-dd if=/dev/zero of=plogspace0 bs=1M count=4096
+dd if=/dev/zero of=plogspace0 bs=1M count=2048
 chmod 660 plogspace0
 # Инициализация plogspace
-onspaces -c -P plogspace -p /ifxdata/ifx1/plogspace0 -o 0 -s 4194304
+onspaces -c -P plogspace -p /ifxdata/ifx1/plogspace0 -o 0 -s 2097152
 # Перенос физического лога на созданный plogspace
-onparams -p -s 4194304 -d plogspace
+onparams -p -s 2097152 -d plogspace
 ```
+
+## 2.2. Изменение размеров и размещения логического лога
+
+[Логический лог](https://www.ibm.com/docs/en/informix-servers/14.10?topic=log-what-is-logical)
+используется Informix для ведения истории изменения данных с момента создания последней
+резервной копии, а также при решении задач репликации данных.
+
+## 2.3. Изменение размещения временных таблиц
+
+## 2.4. Создание основных областей хранения данных
