@@ -20,7 +20,8 @@ sudo ./ids_install
 
 При установке выбран режим "Custom", с полным набором компонентов, но без инициализации сервера Informix.
 
-См. также инструкции в официальной [документации](https://www.ibm.com/docs/en/informix-servers/14.10?topic=installing-running-interactive-installation)
+См. также инструкции в официальной 
+[документации](https://www.ibm.com/docs/en/informix-servers/14.10?topic=installing-running-interactive-installation)
 
 ## 2. Применение лицензионного ключа
 
@@ -53,3 +54,40 @@ chown informix:informix /home/informix
 chmod 700 /home/informix
 usermod -d /home/informix informix
 ```
+
+## 4. Размещение данных Informix
+
+Необходимо спланировать размещение данных Informix.
+В целом для размещения файлов данных Informix рекомендуется использовать отдельный каталог или каталоги, не пересекающиеся с каталогами установки программного обеспечения.
+Владельцем соответствующих каталогов и файлов должен быть пользователь `informix`.
+
+Для высоко-нагруженных систем рекомендуется использование отдельных устройств хранения или их групп для размещения следующих видов информации:
+* инсталляционных файлов Informix и операционной системы;
+* файлов данных Informix (dbspace, sbspace);
+* физических и логических логов Informix.
+
+Использование прямого доступа к устройствам для хранения данных Informix в современных системах не рекомендовано, хотя и поддерживается.
+
+Пример команд для минимальной настройки каталога данных для размещения файлов Informix, относящихся к серверу с именем `ifx1`:
+
+```bash
+mkdir /ifxdata
+mkdir /ifxdata/ifx1
+chown -R informix:informix /ifxdata
+chmod -R 700 /ifxdata
+```
+
+## 5. Настройка основных параметров сервера Informix
+
+Порядок настройки основных параметров описан в 
+[документации](https://www.ibm.com/docs/en/informix-servers/14.10?topic=installation-setting-configuration-parameters).
+
+Чаще всего производят копирование файла `onconfig.std` в новый файл, имя которого обычно следует шаблону `onconfig.ИмяСервера`.
+Затем необходимые параметры корректируют в созданной копии файла настроек.
+
+```bash
+cd /opt/informix/etc
+cp onconfig.std onconfig.ifx1
+vi onconfig.ifx1
+```
+
