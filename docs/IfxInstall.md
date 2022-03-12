@@ -171,7 +171,7 @@ ifx1	onsoctcp	ifx1	on_ifx1
 INFORMIXDIR=/opt/informix
 export INFORMIXDIR
 
-ONCONFIG=$INFORMIXDIR/etc/onconfig.ifx1
+ONCONFIG=onconfig.ifx1
 export ONCONFIG
 
 INFORMIXSQLHOSTS=$INFORMIXDIR/etc/sqlhosts.ifx1
