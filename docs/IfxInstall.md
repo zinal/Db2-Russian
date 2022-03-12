@@ -276,7 +276,57 @@ chmod 660 plogspace0
 onspaces -c -P plogspace -p /ifxdata/ifx1/plogspace0 -o 0 -s 2097152
 ```
 
-## 2.2. Изменение размеров и размещения логического лога
+## 2.2. Создание основных областей хранения данных
+
+Для хранения таблиц и индексов необходимо создать дополнительные объекты
+[dbspace](https://www.ibm.com/docs/en/informix-servers/14.10?topic=storage-dbspaces)
+
+```bash
+cd /ifxdata/ifx1
+cat /dev/null >work1_0
+chmod 660 work1_0
+onspaces -c -d work1 -p /ifxdata/ifx1/work1_0 -o 0 -s 2097152
+```
+
+Пример вывода информации об областях хранения данных:
+
+```
+$ onstat -d
+
+IBM Informix Dynamic Server Version 14.10.FC4W1AEE -- On-Line -- Up 00:20:52 -- 208392 Kbytes
+
+Dbspaces
+address          number   flags      fchunk   nchunks  pgsize   flags    owner    name
+45409028         1        0x30001    1        1        2048     N  BA    informix rootdbs
+4553a420         2        0x1030001  2        1        2048     N PBA    informix plogspace
+4553a660         3        0x20001    3        1        2048     N  BA    informix llog
+4553a8a0         4        0x20001    4        1        2048     N  BA    informix work1
+ 4 active, 2047 maximum
+
+Chunks
+address          chunk/dbs     offset     size       free       bpages     flags pathname
+45409268         1      1      0          150000     119855                PO-B-D /ifxdata/ifx1/rootdbs0
+4eddd028         2      2      0          1048576    0                     PO-BED /ifxdata/ifx1/plogspace0
+4edde028         3      3      0          1048576    917451                PO-B-D /ifxdata/ifx1/llog0
+4eddf028         4      4      0          1048576    1048523               PO-B-D /ifxdata/ifx1/work1_0
+ 4 active, 32766 maximum
+
+NOTE: The values in the "size" and "free" columns for DBspace chunks are
+      displayed in terms of "pgsize" of the DBspace to which they belong.
+
+
+Expanded chunk capacity mode: always
+```
+
+## 2.3. Изменение размещения временных таблиц
+
+
+
+## 2.4. Настройка резервного копирования средствами Informix ON-Bar и Informix Primary Storage Manager
+
+
+
+## 2.5. Изменение размеров и размещения логического лога
 
 [Логический лог](https://www.ibm.com/docs/en/informix-servers/14.10?topic=log-what-is-logical)
 используется Informix для ведения истории изменения данных с момента создания последней
@@ -328,22 +378,6 @@ for i in `seq 1 8`; do onparams -a -d llog; done
 с тем, чтобы текущим файлом стал один из вновь созданных. Переключение выполняется командой
 `onmode -l`, контроль результата переключения выполняется на основе вывода команды `onstat -l`.
 
+## 2.6. Создание баз данных
 
-## 2.3. Создание основных областей хранения данных
-
-Для хранения таблиц и индексов необходимо создать дополнительные объекты
-[dbspace](https://www.ibm.com/docs/en/informix-servers/14.10?topic=storage-dbspaces)
-
-```bash
-cd /ifxdata/ifx1
-cat /dev/null >work1_0
-chmod 660 work1_0
-onspaces -c -d work1 -p /ifxdata/ifx1/work1_0 -o 0 -s 2097152
-```
-
-
-## 2.4. Изменение размещения временных таблиц
-
-## 2.5. Создание баз данных
-
-## 2.6. Настройка автоматического резервного копирования логического лога
+## 2.7. Настройка автоматического резервного копирования логического лога
