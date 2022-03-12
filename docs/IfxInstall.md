@@ -253,13 +253,17 @@ LISTEN     0      100                 [::1]:25                               [::
 [документации](https://www.ibm.com/docs/en/informix-servers/14.10?topic=log-strategy-estimating-size-physical).
 
 Рекомендуется размещение физического лога в отдельной области (plogspace), которая может быть создана
-с помощью специального варианта вызова команды
-[onspaces](https://www.ibm.com/docs/en/informix-servers/14.10?topic=utility-onspaces-c-p-create-plogspace):
+с помощью специального варианта вызова команд
+[onspaces](https://www.ibm.com/docs/en/informix-servers/14.10?topic=utility-onspaces-c-p-create-plogspace)
+и [onparams](https://www.ibm.com/docs/en/informix-servers/14.10?topic=log-change-physical-location-size):
 
 ```bash
-# Выполняется от имени пользователя informix
+# Команды ниже выполняются от имени пользователя informix
 cd /ifxdata/ifx1
 dd if=/dev/zero of=plogspace0 bs=1M count=4096
 chmod 660 plogspace0
-
+# Инициализация plogspace
+onspaces -c -P plogspace -p /ifxdata/ifx1/plogspace0 -o 0 -s 4194304
+# Перенос физического лога на созданный plogspace
+onparams -p -s 4194304 -d plogspace
 ```
