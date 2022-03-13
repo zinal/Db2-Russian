@@ -97,8 +97,5 @@ echo "GRANT RESOURCE TO myuser1" | dbaccess mydb1
 11. Для выхода из режима отображения результатов в меню выбрать `Exit`.
 12. Для выхода из программы `dbaccess` в меню верхнего уровня выбрать `Exit`.
 
-```bash
-onmode -wf USERMAPPING=BASIC
-echo "CREATE DEFAULT USER WITH PROPERTIES USER 'guest'" | dbaccess sysmaster
-echo 'create user user1 with password "P@ssw0rd"' | dbaccess sysmaster
-```
+Программа `dbaccess` также позволяет выполнять SQL-скрипты, хранящиеся в файлах, см.
+[пример](https://www.ibm.com/docs/en/informix-servers/14.10?topic=access-example-run-command-file).
