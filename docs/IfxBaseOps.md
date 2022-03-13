@@ -8,7 +8,7 @@
 echo "CREATE DATABASE mydb1 IN work1 WITH BUFFERED LOG" | dbaccess sysmaster
 ```
 
-## 2. Создание учётных записей
+## 2. Создание учётных записей с аутентификацией операционной системы
 
 [Документация](https://www.ibm.com/docs/en/informix-servers/14.10?topic=security-internal-users-unix-linux)
 по методам аутентификации.
@@ -31,6 +31,52 @@ su - informix
 echo "CREATE USER ifxguest" | dbaccess sysmaster
 echo "GRANT RESOURCE TO ifxguest" | dbaccess mydb1
 ```
+
+Для проверки доступа пользователя к нужной базе данных можно использовать процедуру,
+описанную далее в разделе 4.
+
+## 3. Создание учётных записей с аутентификацией Informix
+
+[Документация](https://www.ibm.com/docs/en/informix-servers/14.10?topic=linux-creating-database-server-users-unix)
+по порядку создания пользователей с аутентификацией Informix.
+
+[Документация](https://www.ibm.com/docs/en/informix-servers/12.10?topic=linux-specifying-surrogates-mapped-users-unix)
+по настройке файла `/etc/informix/allowed.surrogates`.
+
+Перед созданием учётных записей с аутентификацией Informix должен быть создан
+пользователь "по умолчанию", который будет применяться как шаблон при создании
+"внутренних" пользователей Informix. Необходимо:
+1. Выбрать учётную запись с аутентификацией операционной системы, которая будет служить шаблоном
+2. Включить выбранную учётную запись в файл `/etc/informix/allowed.surrogates`, при необходимости создав этот файл
+3. Создать пользователя по умолчанию.
+
+Пример команд по настройке пользователя "по умолчанию":
+
+```bash
+# Выполняется от имени пользователя root
+mkdir /etc/informix
+echo 'USERS:ifxguest' >/etc/informix/allowed.surrogates
+echo 'GROUPS:' >>/etc/informix/allowed.surrogates
+# Дальнейшие действия выполняются от имени пользователя informix
+su - informix
+# Обновляем кэш записей пользователей-суррогатов
+onmode -cache surrogates
+# Создаём пользователя "по умолчанию"
+echo "CREATE DEFAULT USER WITH PROPERTIES USER 'ifxguest'" | dbaccess sysuser
+```
+
+При наличии пользователя "по умолчанию" создание учётных записей с аутентификацией Informix
+производится путём выполнения команды `CREATE USER логин WITH PASSWORD пароль`, например:
+
+```bash
+echo "CREATE USER myuser1 WITH PASSWORD 'passw0rd'" | dbaccess sysuser
+echo "GRANT RESOURCE TO myuser1" | dbaccess mydb1
+```
+
+Для проверки доступа пользователя к нужной базе данных можно использовать процедуру,
+описанную далее в разделе 4.
+
+## 4. Выполнение запросов в программе dbaccess
 
 Подключение от имени вновь созданной учётной записи через программу `dbaccess`:
 1. Запустить программу `dbaccess` без указания параметров
