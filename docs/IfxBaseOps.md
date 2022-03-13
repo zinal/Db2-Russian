@@ -99,3 +99,27 @@ echo "GRANT RESOURCE TO myuser1" | dbaccess mydb1
 
 Программа `dbaccess` также позволяет выполнять SQL-скрипты, хранящиеся в файлах, см.
 [пример](https://www.ibm.com/docs/en/informix-servers/14.10?topic=access-example-run-command-file).
+
+## 5. Загрузка драйвера JDBC и подключение JDBC-клиентом
+
+JDBC драйвер поставляется в виде одного архива в формате JAR. Скачать драйвер можно с сайта
+[Maven Repository](https://mvnrepository.com/artifact/com.ibm.informix/jdbc),
+а также с сайтов IBM Passport Advantage и IBM Fix Central.
+
+Подключение JDBC-клиента рассмотрим на примере приложения
+[Squirrel SQL](http://squirrel-sql.sourceforge.net/),
+в котором есть поддержка работы с базами данных Informix.
+
+После запуска Squirrel SQL необходимо зарегистрировать архив файла драйвера
+Informix в списке поддерживаемых драйверов. Для этого можно указать путь к файлу драйвера
+в уже существующем пункте "Informix", либо создать новый пункт и ввести
+необходимые параметры.
+
+Формат JDBC URL описан в 
+[документации](https://www.ibm.com/docs/en/informix-servers/14.10?topic=database-drivermanagergetconnection-method),
+типичные значения выглядят следующим образом:
+```
+jdbc:informix-sqli://ifx1.local:25000/mydb1:INFORMIXSERVER=ifx1
+```
+В примере выше описано подключение к серверу Informix с именем `ifx`, доступном через порт `25000`
+и сетевое имя `ifx1.local` (вместо сетевого имени также может быть указан IP-адрес).
