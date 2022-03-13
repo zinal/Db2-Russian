@@ -2,7 +2,12 @@
 
 ## 1. Создание баз данных
 
-[Документация](https://www.ibm.com/docs/en/informix-servers/14.10?topic=statements-create-database-statement).
+[Документация](https://www.ibm.com/docs/en/informix-servers/14.10?topic=statements-create-database-statement)
+на оператор `CREATE DATABASE`.
+
+При создании БД необходимо указать основное пространство для её размещения
+(будет пространством по умолчанию для создаваемых объектов), а также установить
+режим логирования БД.
 
 ```bash
 echo "CREATE DATABASE mydb1 IN work1 WITH BUFFERED LOG" | dbaccess sysmaster
