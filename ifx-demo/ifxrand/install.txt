@@ -1,0 +1,10 @@
+Installation:
+
+dbaccess mydb1 <<EOF
+EXECUTE PROCEDURE sqlj.install_jar
+  ('file:/home/informix/ifxrand.jar', 'ifxrand_jar', 1);
+EOF
+
+Testing:
+
+echo "SELECT j_rand_str(20) AS x" | dbaccess mydb1

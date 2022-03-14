@@ -11,7 +11,7 @@ public class IfxRand {
      * @return Random output string of the specified length
      * @throws SQLException
      */
-    public static String randomString(int len)
+    public static String rand_str(int len)
             throws SQLException {
         if (len<=0)
             return "";

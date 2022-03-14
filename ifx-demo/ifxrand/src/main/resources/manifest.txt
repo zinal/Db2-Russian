@@ -1,0 +1,1 @@
+judr-registration: judr.properties
