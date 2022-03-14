@@ -128,3 +128,61 @@ jdbc:informix-sqli://ifx1.local:35000/mydb1:INFORMIXSERVER=ifx1
 указав тип драйвера (Informix), корректный JDBC URL, логин и пароль. При корректной
 настройке становится возможным выполнение SQL-команд в интерактивном редакторе
 Squirrel SQL.
+
+## 6. Регистрация стандартных модулей DataBlade
+
+Модули DataBlade расширяют возможности Informix, добавляя новые функции и типы данных.
+Описание стандартных модули DataBlade, поставляемых с Informix, приведено в
+[документации](https://www.ibm.com/docs/en/informix-servers/14.10?topic=modules-database-extensions-users-guide).
+
+Перед использованием стандартных модулей DataBlade их необходимо зарегистрировать
+в той базе данных, в которой они будут использоваться. Пример действий по регистрации
+одного из стандартных модулей DataBlade приведён на
+[этой странице](https://www.ibm.com/support/pages/how-register-and-use-dbmsalert-sql-package-extension).
+
+Пример последовательности команд по регистрации части стандартных модулей DataBlade в базе данных `mydb1`:
+
+```bash
+cd $INFORMIXDIR/extend
+blademgr
+ifx1> show databases
+Databases on server:
+	mydb1
+	sysadmin
+	sysuser
+
+ifx1> list mydb1
+There are no modules registered in database mydb1.
+ifx1> show modules
+16 DataBlade modules installed on server ifx1:
+	      ifxrltree.3.00  	       binaryudt.1.0  
+	            bts.3.11  	    spatial.8.22.FC4  
+	        sts.2.00.FC2  	       ifxregex.1.10  
+	 TimeSeries.6.01.FC2  	        excompat.1.0  
+	     ifxbuiltins.1.1  	        LLD.1.20.FC2  
+	         mqblade.2.0  	            Node.2.0 c
+	        wfs.1.00.FC1  	   TSPMatch.2.00.FC1  
+	   TSPIndex.1.00.FC1  	   TSAFuncs.1.00.FC2  
+A 'c' indicates DataBlade module has client files.
+If a module does not show up, check the prepare log.
+ifx1> register excompat.1.0 mydb1
+Register module excompat.1.0 into database mydb1? [Y/n]Y
+Registering DataBlade module... (may take a while).
+DataBlade excompat.1.0 was successfully registered in database mydb1.
+ifx1> register ifxregex.1.10 mydb1
+Register module ifxregex.1.10 into database mydb1? [Y/n]Y
+Registering DataBlade module... (may take a while).
+DataBlade ifxregex.1.10 was successfully registered in database mydb1.
+ifx1> register TimeSeries.6.01.FC2 mydb1
+Register module TimeSeries.6.01.FC2 into database mydb1? [Y/n]Y
+Registering DataBlade module... (may take a while).
+DataBlade TimeSeries.6.01.FC2 was successfully registered in database mydb1.
+ifx1> list mydb1
+DataBlade modules registered in database mydb1:
+	        excompat.1.0  	       ifxregex.1.10  
+	 TimeSeries.6.01.FC2  
+
+ifx1> quit
+Disconnecting...
+$
+```
