@@ -140,11 +140,14 @@ Squirrel SQL.
 одного из стандартных модулей DataBlade приведён на
 [этой странице](https://www.ibm.com/support/pages/how-register-and-use-dbmsalert-sql-package-extension).
 
-Пример последовательности команд по регистрации части стандартных модулей DataBlade в базе данных `mydb1`:
+Пример последовательности команд по регистрации части стандартных модулей DataBlade
+в базе данных `mydb1` на сервере `ifx1`:
 
 ```bash
-cd $INFORMIXDIR/extend
-blademgr
+$ whoami
+informix
+$ cd $INFORMIXDIR/extend
+$ blademgr
 ifx1> show databases
 Databases on server:
 	mydb1
