@@ -53,28 +53,38 @@ onspaces -ch sbs1 -Df "LOGGING=ON"
 
 [Документация](https://www.ibm.com/docs/en/informix-servers/14.10?topic=clusters-configuring-secure-connections-high-availability).
 
+Для взаимодействия основного и резервного серверов в рамках процесса репликации RSS требуется
+предусмотреть дополнительный сервис TCP/IP, который на каждом из серверов должен быть
+зарегистрирован для доверенного подключения в файле `sqlhosts` и активирован через
+установку параметра `DBSERVERALIASES`.
+
+Пример дополнительных записей файла `/etc/services` для нашей тестовой конфигурации,
+с использованием порта `35000` для обычных подключений и порта `35001` для кластерных
+коммуникаций между основным и резервным серверами:
+
+```
+on_ifx		35000/tcp
+on_ifx_dr	35001/tcp
+```
+
 На основном сервере необходимо добавить псевдоним для резервного сервера Informix в файл `sqlhosts`.
 Кроме того, для записей, относящихся к локальному сервису Informix, необходимо добавить опцию `s=6`
 
-Например, вот так может выглядеть содержимое файла `/opt/informix/etc/sqlhosts.ifx1` на сервере `ifx1`:
+Например, вот так может выглядеть содержимое файла `/opt/informix/etc/sqlhosts.ifx1`
+на сервере `ifx1`, в котором были добавлены строки с псевдонимами `ifx1_dr` и `ifx2_dr`:
 
 ```
-ifx1            onsoctcp	ifx1            on_ifx1         s=6
-ifx1_shm	onipcshm	ifx1	        on_ifx1_shm     s=6
-ifx1_pub	onsoctcp	ifx1-pub	on_ifx1         s=6
-ifx2	        onsoctcp	ifx2	        on_ifx1
+ifx1        onsoctcp   ifx1       on_ifx
+ifx1_dr     onsoctcp   ifx1       on_ifx_dr  s=6
+ifx1_shm    onipcshm   ifx1       on_ifx
+ifx1_pub    onsoctcp   ifx1-pub   on_ifx
+ifx2        onsoctcp   ifx2       on_ifx
+ifx2_dr     onsoctcp   ifx2       on_ifx_dr  s=6
 ```
-
-Была добавлена последняя строка, которая определяет параметры соединения для сервера `ifx2`
-с использованием протокола TCP/IP.
-Имя сервиса (последний параметр) такое же, как и для сервера `ifx1`,
-так как номер порта в нашем примере используется один и тот же.
-
 
 Также на основном сервере необходимо создать файл `hosts.equiv`, разместив его
 в каталоге `$INFORMIXDIR/etc`. Каждая запись файла ставит в соответствие
 имя хоста и разрешённый логин пользователя (для сервиса Informix - пользователь `informix`).
-
 Рекомендуется указать имя сервера как в полном, так и в локальном
 формате, а также (для унификации настроек основного и резервного
 серверов) указать имена основного и резервного серверов.
@@ -108,12 +118,19 @@ onmode -wf REMOTE_SERVER_CFG=hosts.equiv.ifx1
 onmode -wf S6_USE_REMOTE_SERVER_CFG=1
 ```
 
-Дополнительно на основном сервере необходимо установить параметр `HA_ALIAS`,
-указывающий на основной сетевой псевдоним основного сервера.
+Дополнительно на основном сервере необходимо скорректировать параметр
+`DBSERVERALIASES` и установить параметр `HA_ALIAS`, указывающий на
+сетевой псевдоним основного сервера для межкластерных коммуникаций.
 
 ```bash
-onmode -wf HA_ALIAS=ifx1
+onmode -wf DBSERVERALIASES=ifx1_shm,ifx1_pub,ifx1_dr
+onmode -wf HA_ALIAS=ifx1_dr
 ```
+
+В примере выше значение DBSERVERALIASES включает псевдоним для подключений
+по протоколу IPC (`ifx1_shm`), псевдоним для подключения приложений через
+дополнительный публичный IP-адрес (`ifx1_pub`) и псевдоним для
+RSS-подключений (`ifx1_dr`).
 
 
 ## 4. Подготовка резервного сервера
@@ -122,8 +139,9 @@ onmode -wf HA_ALIAS=ifx1
 
 1. Установить Informix.
 2. Установить дополнительные модули UDR, UDT, DataBlade (если используются).
-3. Выделить файловые системы, каталоги и устройства с именами, соответствующими основному серверу.
-4. Подготовить файлы настроек Informix.
+3. Создать необходимых пользователей операционной системы (например, `ifxguest`).
+4. Выделить файловые системы, каталоги и устройства с именами, соответствующими основному серверу.
+5. Подготовить файлы настроек Informix.
 
 Пример набора команд для создания структуры каталогов и файлов данных,
 аналогичной применяемой на основном сервере:
@@ -144,13 +162,14 @@ chown -R informix:informix /ifxdata
 ```
 
 На резервном сервере необходимо настроить файлы `onconfig`, `sqlhosts`,
-`hosts.equiv` и переменные окружения. За основу можно взять варианты файлов
-с основного сервера.
+`hosts.equiv`, `allowed.surrogates` и переменные окружения.
+За основу можно взять варианты файлов с основного сервера.
 
 Пример команд по первоначальному копированию файлов:
 
 ```bash
-scp .profile ifx2:.
+scp /home/informix/.profile ifx2:/home/informix/
+scp /etc/informix/allowed.surrogates ifx2:/etc/informix/allowed.surrogates
 scp /opt/informix/etc/onconfig.ifx1 ifx2:/opt/informix/etc/onconfig.ifx2
 scp /opt/informix/etc/sqlhosts.ifx1 ifx2:/opt/informix/etc/sqlhosts.ifx2
 scp /opt/informix/etc/hosts.equiv.ifx1 ifx2:/opt/informix/etc/hosts.equiv.ifx2
@@ -169,19 +188,18 @@ scp /opt/informix/etc/hosts.equiv.ifx1 ifx2:/opt/informix/etc/hosts.equiv.ifx2
 Необходимые корректировки файла `sqlhosts` на резервном сервере:
 * удалить псевдонимы для локальных протоколов основного сервера (протокол shm, частные IP-адреса);
 * добавить аналогичные псевдонимы для локальных протоколов резервного сервера;
-* сохранить псевдоним для сетевого подключения к основному серверу;
-* опции `s=6` применить к псевдонимам резервного сервера.
+* сохранить псевдонимы для сетевых подключений к основному серверу.
 
 Пример наполнения файла `sqlhosts` на резервном сервере `ifx2`:
 
 ```
-ifx2		onsoctcp	ifx2		on_ifx1		s=6
-ifx2_shm	onipcshm	ifx2		on_ifx1_shm	s=6
-ifx2_pub	onsoctcp	ifx2-pub	on_ifx1		s=6
-ifx1		onsoctcp	ifx1		on_ifx1
+ifx2        onsoctcp   ifx2       on_ifx
+ifx2_dr     onsoctcp   ifx2       on_ifx_dr  s=6
+ifx2_shm    onipcshm   ifx2       on_ifx
+ifx2_pub    onsoctcp   ifx2-pub   on_ifx
+ifx1        onsoctcp   ifx1       on_ifx
+ifx1_dr     onsoctcp   ifx1       on_ifx_dr  s=6
 ```
-
-Последняя строка определяет псевдоним `ifx1` для подключения к основному серверу.
 
 
 ## 4. Первоначальный запуск резервного сервера Informix в режиме RSS
@@ -191,10 +209,10 @@ ifx1		onsoctcp	ifx1		on_ifx1
 На основном сервере - добавить информацию о резервном сервере RSS, выполнив команду:
 
 ```bash
-onmode -d add RSS ifx2 password
+onmode -d add RSS ifx2_dr password
 ```
 
-Здесь `ifx2` - имя псевдонима резервного сервера RSS, определённое
+Здесь `ifx2_dr` - имя псевдонима подключения для резервного сервера RSS, определённое
 в файле `sqlhosts` на основном сервере.
 
 Аргумент `password` опциональный, и позволяет избежать неожиданных
@@ -216,7 +234,7 @@ RSS Server information:
 
 RSS Srv      RSS Srv      Connection     Next LPG to send        Supports
 name         status       status           (log id,page)         Proxy Writes
-ifx2         Defined      Disconnected            0,0            N
+ifx2_dr      Defined      Disconnected            0,0            N
 
 $
 ```
@@ -270,10 +288,10 @@ ssh ifx1 ./ontape_STDIO_backup.sh | ontape -p -t STDIO
 Включить режим RSS на резервном сервере, выполнив следующую команду:
 
 ```bash
-onmode -d RSS ifx1 password
+onmode -d RSS ifx1_dr password
 ```
 
-Здесь `ifx1` - имя псевдонима основного сервера RSS, определённое
+Здесь `ifx1_dr` - имя псевдонима подключения к основному серверу, определённое
 в файле `sqlhosts на резервном сервере.
 
 Аргумент `password` опциональный, и должен быть установлен в значение,
@@ -300,7 +318,7 @@ RSS Server information:
 
 RSS Srv      RSS Srv      Connection     Next LPG to send        Supports
 name         status       status           (log id,page)         Proxy Writes
-ifx2         Active       Connected              20,45823        N
+ifx2_dr      Active       Connected              20,45823        N
 ```
 
 Пример вывода на резервном сервере:
@@ -312,7 +330,7 @@ IBM Informix Dynamic Server Version 14.10.FC4W1AEE -- Read-Only (RSS) -- Up 01:0
 
 Local server type: RSS
 Server Status : Active
-Source server name: ifx1
+Source server name: ifx1_dr
 Connection status: Connected
 Last log page received(log id,page): 20,45822
 ```
