@@ -142,7 +142,7 @@ PLOG_OVERFLOW_PATH  /ifxdata/ifx1/tmp
 MSGPATH /ifxdata/ifx1/tmp/online.log
 CONSOLE /ifxdata/ifx1/tmp/online.con
 DBSERVERNAME ifx1
-DBSERVERALIASES ifx1_shm
+DBSERVERALIASES ifx1_shm,ifx1_pub
 MULTIPROCESSOR 1
 VPCLASS cpu,num=4,noage
 VP_MEMORY_CACHE_KB 16384,DYNAMIC
@@ -153,10 +153,10 @@ DIRECT_IO 1
 
 Для настройки подключений к серверу Informix по протоколу TCP необходимо
 выделить номер порта сервиса и зарегистрировать его в файле сервисов `/etc/services`.
-Пример строки файла сервисов для регистрации порта `35000` с именем `on_ifx1`:
+Пример строки файла сервисов для регистрации порта `35000` с именем `on_ifx`:
 
 ```
-on_ifx1		35000/tcp
+on_ifx		35000/tcp
 ```
 
 После установки сервера Informix в подкаталоге `etc` есть файл `sqlhosts.demo`,
@@ -171,12 +171,18 @@ vi sqlhosts.ifx1
 Описание настройки сетевых подключений Informix приведено в официальной
 [документации](https://www.ibm.com/docs/en/informix-servers/14.10?topic=key-creating-sqlhosts-file-text-editor).
 
-Пример файла `sqlhosts` с настройкой сетевых подключений к серверу Informix по локальному протоколу общей памяти и по протоколу TCP:
+Пример файла `sqlhosts` с настройкой сетевых подключений к серверу Informix 
+по локальному протоколу общей памяти и по протоколу TCP (для внутреннего и публичного
+IP-адресов):
 
 ```
-ifx1	onsoctcp	ifx1	on_ifx1
-ifx1_shm	onipcshm	ifx1	on_ifx1_shm
+ifx1        onsoctcp   ifx1       on_ifx
+ifx1_shm    onipcshm   ifx1       on_ifx
+ifx1_pub    onsoctcp   ifx1-pub   on_ifx
 ```
+
+Имена `ifx1` и `ifx1-pub` могут быть связаны с IP-адресами в файле `/etc/hosts`,
+либо установлены через службу DNS.
 
 ## 1.7. Установка переменных окружения для учётной записи Informix
 
@@ -232,19 +238,20 @@ oninit -i
 Проконтролировать доступность сервера Informix через TCP/IP можно по факту наличия прослушиваемого порта:
 
 ```
-$ grep on_ifx1 /etc/services 
-on_ifx1		35000/tcp
+$ grep on_ifx /etc/services 
+on_ifx		35000/tcp
+$
 $ ss -ln --tcp
-State      Recv-Q Send-Q      Local Address:Port                     Peer Address:Port              
-LISTEN     0      128                     *:22                                  *:*                  
-LISTEN     0      512         192.168.7.101:35000                               *:*                  
-LISTEN     0      100             127.0.0.1:25                                  *:*                  
-LISTEN     0      128                     *:50000                               *:*                  
-LISTEN     0      128                  [::]:22                               [::]:*                  
-LISTEN     0      100                 [::1]:25                               [::]:* 
+State      Recv-Q Send-Q  Local Address:Port         Peer Address:Port
+LISTEN     0      128                 *:22                      *:*
+LISTEN     0      512    192.168.56.103:35000                   *:*
+LISTEN     0      512     192.168.7.101:35000                   *:*
+LISTEN     0      100         127.0.0.1:25                      *:*
+LISTEN     0      128              [::]:22                   [::]:*
+LISTEN     0      100             [::1]:25                   [::]:*
 ```
 
-В выводе команд выше видно, что порт `35000`, назначенный для сервиса `on_ifx1`, доступен для подключений.
+В выводе команд выше видно, что порт `35000`, назначенный для сервиса `on_ifx`, доступен для подключений.
 
 Типичные действия по донастройке сервера Informix после его инициализации приведены в следующем разделе.
 
@@ -422,11 +429,26 @@ onpsm -D add /backups/ifx1/logs -g LOGPOOL -p HIGHEST -t FILE
 onpsm -D add /backups/ifx1/spaces -g DBSPOOL -p HIGHEST -t FILE
 ```
 
+Для настройки сжатия резервных копий с помощью утилиты `xz` необходимо выставить
+параметры `BACKUP_FILTER` и `RESTORE_FILTER`. 
+
+```bash
+BACKUP_FILTER   'xz -2 -T4 -c'
+RESTORE_FILTER  'xz -dc'
+```
+
+Для выполнения резервного копирования в параллельном режиме необходимо
+установить параметр `BAR_MAX_BACKUP`.
+
+```bash
+onmode -wf BAR_MAX_BACKUP=2
+```
+
 Полное резервное копирование (создание резервной копии уровня 0) после этого
 осуществляется с помощью следующей команды:
 
 ```bash
-onbar -b -L 0
+onbar -b -w -L 0
 ```
 
 Проверить наличие и размещение созданных файлов резервной копии можно на основе
@@ -462,10 +484,10 @@ onspaces -c -d llog -p /ifxdata/ifx1/llog0 -o 0 -s 2097152
 
 ```
 LOGFILES 8
-LOGSIZE 32768
+LOGSIZE 65536
 DYNAMIC_LOGS 2
 LOGBUFF 64
-AUTO_LLOG 1,llog
+AUTO_LLOG 1,llog,100000
 ```
 
 Процедура переноса файлов логического лога в новый dbspace изложена в официальной
@@ -499,4 +521,4 @@ for x in `seq 1 6`; do onparams -d -l $x -y; done
 
 Старые файлы логического лога в этот момент будут помечены для удаления.
 Фактическое удаление и освобождение занятого ими пространства произойдёт при следующем полном
-резервном копировании (например, командой `onbar -b -L 0`).
+резервном копировании (например, командой `onbar -b -w -L 0`).
