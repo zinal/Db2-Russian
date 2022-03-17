@@ -345,3 +345,88 @@ Last log page received(log id,page): 20,45822
 на резервном сервере Informix. Согласованная конфигурация резервного копирования и восстановления
 данных, унифицированная между основным и резервным серверами, в любом случае необходима
 для обеспечения возможности полноценного переключения ролей между ними.
+
+
+# Операции над кластерами Informix RSS и HDR
+
+## Перевод вторичного сервера RSS в режим HDR
+
+RSS - полностью асинхронный режим репликации данных с основного на резервный сервер Informix.
+HDR - полностью либо частично синхронный режим репликации, также поддерживаемый Informix.
+Вторичный сервер HDR может быть только один, при этом производительность вторичного сервера
+и канал связи между первичным и вторичным сервером HDR влияет на производительность выполнения
+транзакций основным сервером.
+
+Для переключения вторичного сервера RSS в режим HDR необходимо на резервном сервере выполнить
+следующую команду от имени пользователя `informix`:
+
+```bash
+onmode -d secondary ifx1_dr
+```
+
+В приведённом выше примере `ifx1_dr` - заданный в файле `sqlhosts` псевдоним для подключения
+к основному серверу в RSS/HDR кластере.
+
+Проконтролировать успешное выполнение операции переключения в режим HDR можно по содержимому
+файла сообщений `online.log`, а также по выводу команды `onstat -g dri` на основном
+и резервном серверах.
+
+Пример вывода на основном сервере `ifx1`:
+
+```
+$ onstat -g dri
+
+IBM Informix Dynamic Server Version 14.10.FC4W1AEE -- On-Line (Prim) -- Up 01:53:47 -- 224776 Kbytes
+
+Data Replication at 0x463cc028: 
+  Type           State        Paired server        Last DR CKPT (id/pg)    Supports Proxy Writes   
+  primary        on           ifx2_dr                      31 / 4836       NA
+
+  DRINTERVAL    0 
+  DRTIMEOUT     30 
+  HDR_TXN_SCOPE NEAR_SYNC 
+  DRAUTO        0 
+  DRLOSTFOUND   /opt/informix/etc/dr.lostfound 
+  DRIDXAUTO     0 
+  ENCRYPT_HDR   0 
+  Backlog       0 
+  Last Send     2022/03/17 11:12:53 
+  Last Receive  2022/03/17 11:12:53 
+  Last Ping     2022/03/17 11:12:24 
+  Last log page applied(log id,page): 31,4837
+```
+
+Пример вывода на резервном сервере `ifx2`:
+
+```
+$ onstat -g dri
+
+IBM Informix Dynamic Server Version 14.10.FC4W1AEE -- Read-Only (Sec) -- Up 01:52:21 -- 273928 Kbytes
+
+Data Replication at 0x463cc028: 
+  Type           State        Paired server        Last DR CKPT (id/pg)    Supports Proxy Writes   
+  HDR Secondary  on           ifx1_dr                      31 / 4836       N 
+
+  DRINTERVAL    0 
+  DRTIMEOUT     30 
+  HDR_TXN_SCOPE NEAR_SYNC 
+  DRAUTO        0 
+  DRLOSTFOUND   /opt/informix/etc/dr.lostfound 
+  DRIDXAUTO     0 
+  ENCRYPT_HDR   0 
+  Backlog       0 
+  Last Send     2022/03/17 11:13:02 
+  Last Receive  2022/03/17 11:13:02 
+  Last Ping     2022/03/17 11:12:53 
+  Last log page applied(log id,page): 0,0
+```
+
+
+## Переключение ролей между основным и резервным серверами
+
+Переключение ролей между основным и резервным серверами возможно только в конфигурации HDR.
+Если требуется перевести вторичный RSS-сервер в статус основного, то сперва необходимо
+перейти к режиму HDR, а затем выполнить переключение ролей по описанной ниже процедуре.
+
+### Шаг 1.
+
