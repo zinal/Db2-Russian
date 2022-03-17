@@ -371,7 +371,8 @@ onmode -d secondary ifx1_dr
 файла сообщений `online.log`, а также по выводу команды `onstat -g dri` на основном
 и вторичном серверах.
 
-Пример вывода на основном сервере `ifx1`:
+<details>
+<summary>Пример вывода на основном сервере `ifx1`</summary>
 
 ```
 $ onstat -g dri
@@ -395,8 +396,10 @@ Data Replication at 0x463cc028:
   Last Ping     2022/03/17 11:12:24 
   Last log page applied(log id,page): 31,4837
 ```
+</details>
 
-Пример вывода на вторичном сервере `ifx2`:
+<details>
+<summary>Пример вывода на вторичном сервере `ifx2`</summary>
 
 ```
 $ onstat -g dri
@@ -420,6 +423,7 @@ Data Replication at 0x463cc028:
   Last Ping     2022/03/17 11:12:53 
   Last log page applied(log id,page): 0,0
 ```
+</details>
 
 
 ## Перевод вторичного сервера HDR в режим RSS
