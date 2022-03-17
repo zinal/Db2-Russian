@@ -300,7 +300,8 @@ chmod 660 work1_0
 onspaces -c -d work1 -p /ifxdata/ifx1/work1_0 -o 0 -s 2097152
 ```
 
-Пример вывода информации об областях хранения данных:
+<details>
+<summary>Пример вывода информации об областях хранения данных</summary>
 
 ```
 $ onstat -l
@@ -363,6 +364,7 @@ NOTE: The values in the "size" and "free" columns for DBspace chunks are
 
 Expanded chunk capacity mode: always
 ```
+</details>
 
 ## 2.3. Настройка размещения временных таблиц
 
