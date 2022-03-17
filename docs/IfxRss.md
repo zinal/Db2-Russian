@@ -488,5 +488,138 @@ onmode -d RSS ifx1_dr passw0rd
 Переключение ролей предполагает кратковременную приостановку доступа пользователей
 к базам данных и сервисам Informix.
 
-### Шаг 1 - остановка основного сервера
+Первоначальное состояние: `ifx1` - основной сервер, `ifx2` - вторичный сервер HDR.
+
+### Шаг 1 - остановка сервера `ifx1`
+
+На текущем основном сервере `ifx1` выполняется команда:
+
+```bash
+onmode -ky
+```
+
+### Шаг 2 - перевод сервера `ifx2` в режим первичного
+
+На текущем вторичном сервере `ifx2` запускается скрипт `hdrmkpri.sh`.
+В результате происходит переключение вторичного сервера HDR
+в режим работы первичного сервера и его остановка.
+
+<details>
+<summary>Пример вывода скрипта `hdrmkpri.sh`</summary>
+
+```
+$ hdrmkpri.sh
+
+This script changes the type of the Data replication server to Primary.
+
+Steps to switch server types in an HDR pair:
+
+  Instance A (currently Primary)          Instance B (currently Secondary)
+  ------------------------------          --------------------------------
+  1] onmode -ky                              (server should be up)
+                                          2] hdrmkpri.sh <primary_server_name>
+  3] hdrmksec.sh <secondary_server_name>
+     (now a Secondary server)             4] oninit (now a Primary server)
+
+WARNING: Please ensure the following before proceeding further:
+
+           1] the paired  database server is OFFLINE,
+           2] the current database server is up, and
+           3] the current database server has Data replication turned off.
+
+         Not doing so, shall make the two database servers in the
+         Data replication pair out-of-sync, and shall require
+         re-establishing the pair.
+
+Press return to continue...
+
+ 
+Replication Status: Type          : Secondary
+                    State         : off
+                    Paired server : ifx1_dr
+ 
+Changing to Standard type via:
+	onmode -d standard
+ 
+Changing to Primary type via: (could take a couple of minutes)
+	onmode -d primary ifx1_dr
+ 
+Shutting down the database server via:
+	onmode -ky
+ 
+NOTE: Shutting down the database server now is MANDATORY, because
+      if the two database servers in a Data replication pair
+      are brought up as Primary/Standard type OR,
+      if one database server is up and the mode of the paired server
+      is changed, then the database servers in the pair could
+      become out-of-sync, leading to establishing the pair again.
+ 
+Run $INFORMIXDIR/bin/hdrmksec.sh on the paired server.
+After the run OR if it has already been run, then WITHOUT bringing the
+paired (now Secondary) server down, start the current (now Primary)
+database server, to make the Data replication pair operational.
+```
+</details>
+
+### Шаг 3 - перевод сервера `ifx1` в режим вторичного
+
+На первоначальном первичном сервере `ifx1` запускается скрипт `hdrmksec.sh`.
+В результате происходит переключение его в режим работы вторичного сервера HDR.
+
+<details>
+<summary>Пример вывода скрипта `hdrmksec.sh`</summary>
+
+```
+$ hdrmksec.sh 
+
+This script changes the type of the Data replication server to Secondary.
+
+Steps to switch server types in an HDR pair:
+
+  Instance A (currently Primary)          Instance B (currently Secondary)
+  ------------------------------          --------------------------------
+  1] onmode -ky                              (server should be up)
+                                          2] hdrmkpri.sh <primary_server_name>
+  3] hdrmksec.sh <secondary_server_name>
+     (now a Secondary server)             4] oninit (now a Primary server)
+
+WARNING: Please ensure the following before proceeding further:
+
+           1] the paired  database server is OFFLINE, and
+           2] the current database server has Data replication turned off.
+
+         Not doing so, shall make the two database servers in the
+         Data replication pair out-of-sync, and shall require
+         re-establishing the pair.
+
+Press return to continue...
+
+ 
+Current database server is down/off-line.
+ 
+Run $INFORMIXDIR/bin/hdrmkpri.sh on the paired server.
+After the run OR if it has already been run, then
+Press Return to continue ...
+
+ 
+Enter the paired server name and press return:
+ifx2_dr
+ 
+Starting the database server via :
+	oninit -PHY
+  Note : -PHY is an undocumented option only used in this
+         HDR failover script
+ 
+Changing to Secondary type via: (could take a couple of minutes)
+	onmode -d secondary ifx2_dr
+ 
+WARNING: The current database server should NOT be shutdown now.
+         If it is shutdown for any reason, then you need to re-run
+         this script again from the start.
+ 
+Start the paired (now Primary) database server, while the current
+(now Secondary) database server tries to connect to it, to make the
+Data replication pair operational.
+```
+</details>
 
