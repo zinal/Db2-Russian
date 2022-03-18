@@ -10,11 +10,11 @@ WITH r100(rnum) AS (
 )
 INSERT INTO ifxdemo1(A,B,C,D,E,F)
 SELECT r1.rnum + 100 * (r2.rnum + 100 * r3.rnum) + 1,
-   j_rand_str(CASE WHEN MOD(r1.rnum,2)=1 THEN 75 ELSE 50 END),
-   j_rand_str(CASE WHEN MOD(r1.rnum,2)=1 THEN 45 ELSE 30 END),
+   j_rand_str(CASE WHEN MOD(r1.rnum,2)=1 THEN 55 ELSE 30 END),
+   j_rand_str(CASE WHEN MOD(r1.rnum,2)=1 THEN 45 ELSE 20 END),
    CURRENT YEAR TO FRACTION,
    dbms_random_random(),
-   -1.0
+   -10001.0
 FROM r100 r1, r100 r2, r100 r3;
 
 ALTER TABLE ifxdemo1 TYPE (STANDARD);
