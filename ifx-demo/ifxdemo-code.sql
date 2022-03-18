@@ -43,4 +43,9 @@ EXECUTE PROCEDURE ifxdemo_work1(1000) @
 
 SELECT * FROM ifxdemo1 WHERE SUBSTR(b,1,2)='1$';
 
+(SELECT 'ifxdemo1' AS tabname, COUNT(*) AS dfcnt FROM ifxdemo1 WHERE f<>-1.0) UNION ALL
+(SELECT 'ifxdemo2' AS tabname, COUNT(*) AS dfcnt FROM ifxdemo2 WHERE f<>-1.0) UNION ALL
+(SELECT 'ifxdemo3' AS tabname, COUNT(*) AS dfcnt FROM ifxdemo3 WHERE f<>-1.0) UNION ALL
+(SELECT 'ifxdemo4' AS tabname, COUNT(*) AS dfcnt FROM ifxdemo4 WHERE f<>-1.0);
+
 -- End Of File
