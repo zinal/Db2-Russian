@@ -12,22 +12,30 @@ CREATE OR REPLACE PROCEDURE ifxdemo_work1(p_id INTEGER)
   UPDATE ifxdemo1 SET
     b = '1$' || v_b_one || '$' || v_b_two,
     c = '1$' || v_c_one || '$' || v_c_two,
-    d = v_d
+    d = v_d,
+    e = dbms_random_random(),
+    f = sin(mod(dbms_random_random(), 100) / 10.3) * 1000.0
   WHERE a=p_id;
   UPDATE ifxdemo2 SET
     b = '2$' || v_b_two || '$' || v_b_one,
     c = '2$' || v_c_one || '$' || v_c_two,
-    d = v_d
+    d = v_d,
+    e = dbms_random_random(),
+    f = cos(mod(dbms_random_random(), 100) / 10.3) * 1000.0
   WHERE a=p_id;
   UPDATE ifxdemo3 SET
     b = '3$' || v_b_one || '$' || v_b_two,
     c = '3$' || v_c_two || '$' || v_c_one,
-    d = v_d
+    d = v_d,
+    e = dbms_random_random(),
+    f = sin(mod(dbms_random_random(), 10) / 6.9) * 1000.0
   WHERE a=p_id;
   UPDATE ifxdemo4 SET
     b = '4$' || v_b_two || '$' || v_b_one,
     c = '4$' || v_c_two || '$' || v_c_one,
-    d = v_d
+    d = v_d,
+    e = dbms_random_random(),
+    f = cos(mod(dbms_random_random(), 10) / 6.9) * 1000.0
   WHERE a=p_id;
 END PROCEDURE; @
 
