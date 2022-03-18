@@ -333,7 +333,8 @@ address          number   flags    uniqid   begin                size     used  
 4553a328         12       A------- 0        3:114741            16384        0     0.00
  8 active, 8 total
 
--bash-4.2$ onstat -d
+$
+$ onstat -d
 
 IBM Informix Dynamic Server Version 14.10.FC4W1AEE -- On-Line -- Up 01:14:45 -- 208392 Kbytes
 

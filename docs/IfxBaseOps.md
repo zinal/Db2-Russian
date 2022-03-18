@@ -189,3 +189,53 @@ ifx1> quit
 Disconnecting...
 $
 ```
+
+## 7. Получение информации о плане выполнения запросов
+
+Два основных варианта:
+* оператор `SET EXPLAIN` - [документация](https://www.ibm.com/docs/en/informix-servers/14.10?topic=statements-set-explain-statement)
+* директивы в запросе - [документация](https://www.ibm.com/docs/en/informix-servers/14.10?topic=statements-explain-directives)
+
+После активации режима `EXPLAIN` сервер Informix записывает информацию о плане
+выполнения запроса в текстовый файл. Имя и путь к файлу могут быть настроены
+с помощью команды `SET EXPLAIN FILE TO 'ПутьИИмяФайла'`, по умолчанию обычно
+информация пишется в файл с именем `	sqexplain.out` в домашнем каталоге
+пользователя, см. также [документацию](https://www.ibm.com/docs/en/informix-servers/14.10?topic=statement-default-name-location-explain-output-file-unix).
+
+Пример скрипта, выполняющего запрос и сохраняющего план его выполнения
+в файл с указанным именем:
+
+```SQL
+SET EXPLAIN FILE TO '/tmp/q1_explain.txt';
+SET EXPLAIN ON;
+
+(SELECT 'ifxdemo1' AS tabname, COUNT(*) AS rowcount FROM ifxdemo1)
+UNION ALL
+(SELECT 'ifxdemo2' AS tabname, COUNT(*) AS rowcount FROM ifxdemo2)
+UNION ALL
+(SELECT 'ifxdemo3' AS tabname, COUNT(*) AS rowcount FROM ifxdemo3)
+UNION ALL
+(SELECT 'ifxdemo4' AS tabname, COUNT(*) AS rowcount FROM ifxdemo4);
+
+SET EXPLAIN OFF;
+```
+
+В сформированном в результате выполнения скрипта файле на сервере
+Informix будет записана информация о плане выполнения, а также
+статистика выполнения запроса, включая количество строк, обработанное
+на каждом этапе выполнения запроса.
+
+Отключить выполнение запросов, для которых строится план выполнения,
+можно с помощью опции `AVOID_EXECUTE`, добавляемой в оператор
+`SET EXPLAIN` или к директиве `EXPLAIN` в тексте запроса.
+Например:
+
+```SQL
+SET EXPLAIN FILE TO '/tmp/q2_explain.txt';
+SET EXPLAIN ON AVOID_EXECUTE;
+```
+
+Фактическое выполнение оператора при использовании опции `AVOID_EXECUTE`
+не производится, поэтому блок информации со статистикой выполнения
+не формируется.
+
