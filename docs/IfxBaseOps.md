@@ -33,12 +33,14 @@ adduser ifxguest
 passwd ifxguest
 # Далее работаем от имени пользователя informix
 su - informix
+onmode -wf USERMAPPING=BASIC
 echo "CREATE USER ifxguest" | dbaccess sysmaster
 echo "GRANT RESOURCE TO ifxguest" | dbaccess mydb1
 ```
 
 Для проверки доступа пользователя к нужной базе данных можно использовать процедуру,
 описанную далее в разделе 4.
+
 
 ## 3. Создание учётных записей с аутентификацией Informix
 
@@ -81,6 +83,7 @@ echo "GRANT RESOURCE TO myuser1" | dbaccess mydb1
 Для проверки доступа пользователя к нужной базе данных можно использовать процедуру,
 описанную далее в разделе 4.
 
+
 ## 4. Выполнение запросов в программе dbaccess
 
 Подключение от имени вновь созданной учётной записи через программу `dbaccess`:
@@ -99,6 +102,7 @@ echo "GRANT RESOURCE TO myuser1" | dbaccess mydb1
 
 Программа `dbaccess` также позволяет выполнять SQL-скрипты, хранящиеся в файлах, см.
 [пример](https://www.ibm.com/docs/en/informix-servers/14.10?topic=access-example-run-command-file).
+
 
 ## 5. Загрузка драйвера JDBC и подключение JDBC-клиентом
 
@@ -128,6 +132,7 @@ jdbc:informix-sqli://ifx1.local:35000/mydb1:INFORMIXSERVER=ifx1
 указав тип драйвера (Informix), корректный JDBC URL, логин и пароль. При корректной
 настройке становится возможным выполнение SQL-команд в интерактивном редакторе
 Squirrel SQL.
+
 
 ## 6. Регистрация стандартных модулей DataBlade
 
@@ -189,6 +194,7 @@ ifx1> quit
 Disconnecting...
 $
 ```
+
 
 ## 7. Получение информации о плане выполнения запросов
 
