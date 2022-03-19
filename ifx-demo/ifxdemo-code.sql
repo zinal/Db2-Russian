@@ -63,7 +63,7 @@ END PROCEDURE; @
 
 EXECUTE PROCEDURE ifxdemo_work1(1000) @
 
-SELECT * FROM ifxdemo1 WHERE SUBSTR(b,1,2)='1$';
+SELECT * FROM ifxdemo1 WHERE a=1000;
 
 (SELECT 'ifxdemo1' AS tabname, COUNT(*) AS dfcnt FROM ifxdemo1 WHERE f>-10000.0) UNION ALL
 (SELECT 'ifxdemo2' AS tabname, COUNT(*) AS dfcnt FROM ifxdemo2 WHERE f>-10000.0) UNION ALL

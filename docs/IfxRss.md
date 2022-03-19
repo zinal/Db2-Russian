@@ -148,16 +148,16 @@ RSS-подключений (`ifx1_dr`).
 
 ```bash
 mkdir /ifxdata
-mkdir /ifxdata/ifx1
-mkdir /ifxdata/ifx1/tmp
+mkdir /ifxdata/srv0
+mkdir /ifxdata/srv0/tmp
 chmod -R 700 /ifxdata
-touch /ifxdata/ifx1/rootdbs0
-touch /ifxdata/ifx1/plogspace0
-touch /ifxdata/ifx1/llog0
-touch /ifxdata/ifx1/work1_0
-touch /ifxdata/ifx1/sbs1_0
-touch /ifxdata/ifx1/temp1_0
-chmod 660 /ifxdata/ifx1/*0
+touch /ifxdata/srv0/rootdbs0
+touch /ifxdata/srv0/plogspace0
+touch /ifxdata/srv0/llog0
+touch /ifxdata/srv0/work1_0
+touch /ifxdata/srv0/sbs1_0
+touch /ifxdata/srv0/temp1_0
+chmod 660 /ifxdata/srv0/*0
 chown -R informix:informix /ifxdata
 ```
 
