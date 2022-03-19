@@ -33,8 +33,9 @@ sudo ./ids_install
 
 ## 1.2. Применение лицензионного ключа
 
-Стандартный дистрибутив после установки активирует редакцию Informix Developer Edition.
-Для переключения на нужную редакцию используется компонент 
+Начиная с версии Informix 14.10, стандартный дистрибутив после установки
+активирует редакцию Informix Developer Edition.
+Для переключения на нужную (приобретённую) редакцию Informix используется компонент 
 ["Edition Installer"](https://www.ibm.com/docs/en/informix-servers/14.10?topic=installation-informix-edition-installer),
 как показано ниже:
 
@@ -59,7 +60,7 @@ sudo ./ids_install
 ```bash
 mkdir /home/informix
 chown informix:informix /home/informix
-chmod 770 /home/informix
+chmod 700 /home/informix
 usermod -d /home/informix informix
 ```
 
@@ -84,22 +85,23 @@ Informix поддерживает хранение данных в файлах 
 их использованием в составе баз данных Informix. См. также
 [документацию](https://www.ibm.com/docs/en/informix-servers/14.10?topic=chunks-unbuffered-buffered-disk-access-unix).
 
-Пример команд для минимальной настройки каталога данных для размещения файлов Informix, относящихся к серверу с именем `ifx1`:
+Пример команд для минимальной настройки каталога данных для размещения файлов
+Informix, относящихся к серверу номер `0`:
 
 ```bash
 # Выполняется от имени пользователя root
 mkdir /ifxdata
-mkdir /ifxdata/ifx1
-mkdir /ifxdata/ifx1/tmp
+mkdir /ifxdata/srv0
+mkdir /ifxdata/srv0/tmp
 chown -R informix:informix /ifxdata
-chmod -R 700 /ifxdata
+chmod -R 770 /ifxdata
 ```
 
 Пример команд для выделения пустого файла под root dbspace:
 
 ```bash
 # Выполняется от имени пользователя informix
-cd /ifxdata/ifx1
+cd /ifxdata/srv0
 cat /dev/null >rootdbs0
 chmod 660 rootdbs0
 ```
@@ -137,10 +139,10 @@ vi onconfig.ifx1
 Пример изменённых настроек параметров в копии файла `onconfig.std`:
 
 ```
-ROOTPATH /ifxdata/ifx1/rootdbs0
-PLOG_OVERFLOW_PATH  /ifxdata/ifx1/tmp
-MSGPATH /ifxdata/ifx1/tmp/online.log
-CONSOLE /ifxdata/ifx1/tmp/online.con
+ROOTPATH /ifxdata/srv0/rootdbs0
+PLOG_OVERFLOW_PATH  /ifxdata/srv0/tmp
+MSGPATH /ifxdata/srv0/tmp/online.log
+CONSOLE /ifxdata/srv0/tmp/console.log
 DBSERVERNAME ifx1
 DBSERVERALIASES ifx1_shm,ifx1_pub
 MULTIPROCESSOR 1
@@ -204,6 +206,9 @@ export ONCONFIG
 INFORMIXSQLHOSTS=$INFORMIXDIR/etc/sqlhosts.ifx1
 export INFORMIXSQLHOSTS
 
+INFORMIXSERVER=ifx1
+export INFORMIXSERVER
+
 GL_USEGLU=1
 export GL_USEGLU
 
@@ -225,7 +230,7 @@ export PS1
 ## 1.8. Инициализация сервера Informix
 
 Перед инициализацией сервера Informix должны быть установлены переменные окружения 
-`INFORMIXDIR`, `ONCONFIG`, `INFORMIXSQLHOSTS`.
+`INFORMIXDIR`, `ONCONFIG`, `INFORMIXSQLHOSTS`, `INFORMIXSERVER`.
 
 Для инициализации сервера Informix должна быть выполнена следующая команда:
 
@@ -272,18 +277,34 @@ LISTEN     0      100             [::1]:25                   [::]:*
 рекомендации по оценке необходимого размера приведены в официальной
 [документации](https://www.ibm.com/docs/en/informix-servers/14.10?topic=log-strategy-estimating-size-physical).
 
-Рекомендуется размещение физического лога в отдельной области (plogspace), которая может быть создана
-с помощью специального варианта вызова команд
-[onspaces](https://www.ibm.com/docs/en/informix-servers/14.10?topic=utility-onspaces-c-p-create-plogspace)
-и [onparams](https://www.ibm.com/docs/en/informix-servers/14.10?topic=log-change-physical-location-size):
+Для Informix версии 12.10 и выше рекомендуется размещение физического лога
+в отдельной области специального типа (plogspace), которая может быть создана
+с помощью вызова команды
+[onspaces](https://www.ibm.com/docs/en/informix-servers/14.10?topic=utility-onspaces-c-p-create-plogspace).
 
 ```bash
 # Команды выполняются от имени пользователя informix
-cd /ifxdata/ifx1
+cd /ifxdata/srv0
 cat /dev/null >plogspace0
 chmod 660 plogspace0
 # Создание plogspace и переключение на него
-onspaces -c -P plogspace -p /ifxdata/ifx1/plogspace0 -o 0 -s 2097152
+onspaces -c -P plogspace -p /ifxdata/srv0/plogspace0 -o 0 -s 2097152
+```
+
+Для Informix 11.70 и более ранних версий физический лог можно вынести
+в отдельный dbspace, который предварительно должен быть создан.
+Перенести в новый dbspace физическический лог можно с помощью команды
+[onparams](https://www.ibm.com/docs/en/informix-servers/14.10?topic=log-change-physical-location-size).
+
+```bash
+# Команды выполняются от имени пользователя informix
+cd /ifxdata/srv0
+cat /dev/null >logspace0
+chmod 660 logspace0
+# Создание нового dbspace, состоящего из одного чанка размером 1 Гбайт
+onspaces -c -d logspace -p /ifxdata/srv0/logspace0 -o 0 -s 1048576
+# Перенос физического лога во вновь созданный dbspace
+onparams -p -s 1048470 -d logspace -y
 ```
 
 ## 2.2. Создание основных областей хранения данных
@@ -296,11 +317,11 @@ onspaces -c -P plogspace -p /ifxdata/ifx1/plogspace0 -o 0 -s 2097152
 
 ```bash
 # Команды выполняются от имени пользователя informix
-cd /ifxdata/ifx1
+cd /ifxdata/srv0
 cat /dev/null >work1_0
 chmod 660 work1_0
 # Создание dbspace work1, состоящего из одного чанка размером 2 Гбайт
-onspaces -c -d work1 -p /ifxdata/ifx1/work1_0 -o 0 -s 2097152
+onspaces -c -d work1 -p /ifxdata/srv0/work1_0 -o 0 -s 2097152
 ```
 
 <details>
@@ -353,12 +374,12 @@ address          number   flags      fchunk   nchunks  pgsize   flags    owner  
 
 Chunks
 address          chunk/dbs     offset     size       free       bpages     flags pathname
-45409268         1      1      0          150000     139845                PO-B-D /ifxdata/ifx1/rootdbs0
-4eddd028         2      2      0          1048576    0                     PO-BED /ifxdata/ifx1/plogspace0
-4edde028         3      3      0          1048576    917451                PO-B-D /ifxdata/ifx1/llog0
-4eddf028         4      4      0          1048576    1048523               PO-B-D /ifxdata/ifx1/work1_0
-4ec54028         5      5      0          1048576    1048523               PO-B-- /ifxdata/ifx1/temp1_0
-4fa7f028         6      6      0          524288     488925     488925     POSB-D /ifxdata/ifx1/sbs1_0
+45409268         1      1      0          150000     139845                PO-B-D /ifxdata/srv0/rootdbs0
+4eddd028         2      2      0          1048576    0                     PO-BED /ifxdata/srv0/plogspace0
+4edde028         3      3      0          1048576    917451                PO-B-D /ifxdata/srv0/llog0
+4eddf028         4      4      0          1048576    1048523               PO-B-D /ifxdata/srv0/work1_0
+4ec54028         5      5      0          1048576    1048523               PO-B-- /ifxdata/srv0/temp1_0
+4fa7f028         6      6      0          524288     488925     488925     POSB-D /ifxdata/srv0/sbs1_0
                                  Metadata 35310      26274      35310   
  6 active, 32766 maximum
 
@@ -380,11 +401,11 @@ Expanded chunk capacity mode: always
 
 ```bash
 # Команды выполняются от имени пользователя informix
-cd /ifxdata/ifx1
+cd /ifxdata/srv0
 cat /dev/null >temp1_0
 chmod 660 temp1_0
 # Создание временного dbspace temp1 размером 2 Гбайт
-onspaces -c -t -d temp1 -p /ifxdata/ifx1/temp1_0 -o 0 -s 2097152
+onspaces -c -t -d temp1 -p /ifxdata/srv0/temp1_0 -o 0 -s 2097152
 # Включить использование временного dbspace
 onmode -wf DBSPACETEMP=temp1
 ```
@@ -400,11 +421,11 @@ onmode -wf DBSPACETEMP=temp1
 
 ```bash
 # Команды выполняются от имени пользователя informix
-cd /ifxdata/ifx1
+cd /ifxdata/srv0
 cat /dev/null >sbs1_0
 chmod 660 sbs1_0
 # Создание sbspace sbs1 размером 1 Гбайт
-onspaces -c -S sbs1 -p /ifxdata/ifx1/sbs1_0 -o 0 -s 1048576
+onspaces -c -S sbs1 -p /ifxdata/srv0/sbs1_0 -o 0 -s 1048576
 # Включить использование sbspace для хранения данных BLOB и CLOB
 onmode -wf SBSPACENAME=sbs1
 ```
@@ -474,10 +495,10 @@ onpsm -O list
 и настроить сервер Informix для хранения логического лога в новом dbspace.
 
 ```bash
-cd /ifxdata/ifx1
+cd /ifxdata/srv0
 cat /dev/null >llog0
 chmod 660 llog0
-onspaces -c -d llog -p /ifxdata/ifx1/llog0 -o 0 -s 2097152
+onspaces -c -d llog -p /ifxdata/srv0/llog0 -o 0 -s 2097152
 ```
 
 Изменение размера и количества файлов логического лога требует установки настроек
