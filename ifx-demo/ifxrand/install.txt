@@ -1,4 +1,14 @@
+J/Foundation support:
+
+cd $INFORMIXDIR/extend/krakatoa
+cp .jvpprops.template .jvpprops
+
+oninit: VPCLASS jvp,num=2
+
+
 Installation:
+
+scp bin/ifxrand.jar informix@ifx1:/home/informix/
 
 dbaccess mydb1 <<EOF
 EXECUTE PROCEDURE sqlj.install_jar
