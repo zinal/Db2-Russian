@@ -1,6 +1,28 @@
 -- Dummy workload implementation
 
-CREATE OR REPLACE PROCEDURE ifxdemo_work1(p_id INTEGER)
+/*
+DROP FUNCTION j_rand_str(INTEGER) @
+
+CREATE FUNCTION j_rand_str(p_len INTEGER) RETURNS LVARCHAR
+  DEFINE v_src VARCHAR(70);
+  DEFINE v_dst VARCHAR(200);
+  DEFINE v_pos INTEGER;
+  DEFINE v_char INTEGER;
+  LET v_src = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  LET v_pos = 1;
+  LET v_dst = '';
+  WHILE v_pos <= p_len AND v_pos <= 200
+    LET v_char = MOD(ABS(dbms_random_random()), 62) + 1;
+    LET v_dst = v_dst || SUBSTR(v_src, v_char, 1);
+    LET v_pos = v_pos + 1;
+  END WHILE;
+  RETURN v_dst;
+END FUNCTION; @
+
+SELECT j_rand_str(10) FROM TABLE(SET{1}) x @
+*/
+
+CREATE PROCEDURE ifxdemo_work1(p_id INTEGER)
   DEFINE v_b_one, v_b_two VARCHAR(100);
   DEFINE v_c_one, v_c_two VARCHAR(100);
   DEFINE v_d DATETIME YEAR TO FRACTION;
@@ -43,9 +65,9 @@ EXECUTE PROCEDURE ifxdemo_work1(1000) @
 
 SELECT * FROM ifxdemo1 WHERE SUBSTR(b,1,2)='1$';
 
-(SELECT 'ifxdemo1' AS tabname, COUNT(*) AS dfcnt FROM ifxdemo1 WHERE f<>-1.0) UNION ALL
-(SELECT 'ifxdemo2' AS tabname, COUNT(*) AS dfcnt FROM ifxdemo2 WHERE f<>-1.0) UNION ALL
-(SELECT 'ifxdemo3' AS tabname, COUNT(*) AS dfcnt FROM ifxdemo3 WHERE f<>-1.0) UNION ALL
-(SELECT 'ifxdemo4' AS tabname, COUNT(*) AS dfcnt FROM ifxdemo4 WHERE f<>-1.0);
+(SELECT 'ifxdemo1' AS tabname, COUNT(*) AS dfcnt FROM ifxdemo1 WHERE f>-10000.0) UNION ALL
+(SELECT 'ifxdemo2' AS tabname, COUNT(*) AS dfcnt FROM ifxdemo2 WHERE f>-10000.0) UNION ALL
+(SELECT 'ifxdemo3' AS tabname, COUNT(*) AS dfcnt FROM ifxdemo3 WHERE f>-10000.0) UNION ALL
+(SELECT 'ifxdemo4' AS tabname, COUNT(*) AS dfcnt FROM ifxdemo4 WHERE f>-10000.0);
 
 -- End Of File

@@ -3,6 +3,12 @@
 ALTER TABLE ifxdemo1 DROP CONSTRAINT ifxdemo1_pk;
 ALTER TABLE ifxdemo1 TYPE (RAW);
 
+/*
+CREATE VIEW r100(rnum) AS SELECT rnum - 1 FROM (
+    SELECT ROW_NUMBER() OVER() AS rnum FROM "informix".syscolumns
+  ) x WHERE rnum<=100
+*/
+
 WITH r100(rnum) AS (
   SELECT rnum - 1 FROM (
     SELECT ROW_NUMBER() OVER() AS rnum FROM "informix".syscolumns

@@ -15,6 +15,18 @@ EXECUTE PROCEDURE sqlj.install_jar
   ('file:/home/informix/ifxrand.jar', 'ifxrand_jar', 1);
 EOF
 
+For Informix 11.70 and earlier:
+
+dbaccess mydb1 <<EOF
+DROP FUNCTION j_rand_str(integer);
+EOF
+
+dbaccess mydb1 <<EOF
+CREATE FUNCTION j_rand_str(integer) RETURNS lvarchar
+  EXTERNAL NAME 'ifxrand_jar:net.ifxrand.IfxRand.rand_str(int)'
+  LANGUAGE java;
+EOF
+
 Testing:
 
-echo "SELECT j_rand_str(20) AS x" | dbaccess mydb1
+echo "SELECT j_rand_str(20) AS x FROM TABLE(SET{1})" | dbaccess mydb1
