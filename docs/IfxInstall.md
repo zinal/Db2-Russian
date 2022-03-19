@@ -59,7 +59,7 @@ sudo ./ids_install
 ```bash
 mkdir /home/informix
 chown informix:informix /home/informix
-chmod 700 /home/informix
+chmod 770 /home/informix
 usermod -d /home/informix informix
 ```
 
@@ -193,7 +193,7 @@ ifx1_pub    onsoctcp   ifx1-pub   on_ifx
 Пример файла `.profile` для пользователя `informix` приведён ниже:
 
 ```bash
- # .profile for informix
+# .profile for informix
 
 INFORMIXDIR=/opt/informix
 export INFORMIXDIR
@@ -212,6 +212,9 @@ export DB_LOCALE
 
 PATH=$PATH:$INFORMIXDIR/bin
 export PATH
+
+PS1='\u@\h$ '
+export PS1
 
 # End Of File
 ```
