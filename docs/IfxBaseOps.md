@@ -270,12 +270,12 @@ drda_ifx        36000/tcp
 4. На клиенте Db2 выполнить команды для каталогизации сервера и базы данных, плюс проверки подключения:
 
 ```bash
-db2 catalog tcpip node ifx1drda  remote ifx1 server drda_ifx
+db2 catalog tcpip node ifx1drda  remote ifx1.local server drda_ifx
 db2 catalog database mydb1 as ifxdb1 at node ifx1drda
 db2 connect to ifxdb1 user myuser1 using passw0rd
 ```
 
 5. Параметры для подключения через JDBC-драйвер Db2:
 * типовое имя файла драйвера: `db2jcc4.jar`
-* типовой JDBC URL: `jdbc:db2://ifx1:36000/mydb1`
+* типовой JDBC URL: `jdbc:db2://ifx1.local:36000/mydb1`
 * имя класса драйвера: `com.ibm.db2.jcc.DB2Driver`
