@@ -215,12 +215,9 @@ $
 SET EXPLAIN FILE TO '/tmp/q1_explain.txt';
 SET EXPLAIN ON;
 
-(SELECT 'ifxdemo1' AS tabname, COUNT(*) AS rowcount FROM ifxdemo1)
-UNION ALL
-(SELECT 'ifxdemo2' AS tabname, COUNT(*) AS rowcount FROM ifxdemo2)
-UNION ALL
-(SELECT 'ifxdemo3' AS tabname, COUNT(*) AS rowcount FROM ifxdemo3)
-UNION ALL
+(SELECT 'ifxdemo1' AS tabname, COUNT(*) AS rowcount FROM ifxdemo1) UNION ALL
+(SELECT 'ifxdemo2' AS tabname, COUNT(*) AS rowcount FROM ifxdemo2) UNION ALL
+(SELECT 'ifxdemo3' AS tabname, COUNT(*) AS rowcount FROM ifxdemo3) UNION ALL
 (SELECT 'ifxdemo4' AS tabname, COUNT(*) AS rowcount FROM ifxdemo4);
 
 SET EXPLAIN OFF;
@@ -239,9 +236,15 @@ Informix будет записана информация о плане выпо
 ```SQL
 SET EXPLAIN FILE TO '/tmp/q2_explain.txt';
 SET EXPLAIN ON AVOID_EXECUTE;
+
+(SELECT 'ifxdemo1' AS tabname, AVG(f) AS rowavg FROM ifxdemo1 WHERE f>-1000) UNION ALL
+(SELECT 'ifxdemo2' AS tabname, AVG(f) AS rowavg FROM ifxdemo2 WHERE f>-1000) UNION ALL
+(SELECT 'ifxdemo3' AS tabname, AVG(f) AS rowavg FROM ifxdemo3 WHERE f>-1000) UNION ALL
+(SELECT 'ifxdemo4' AS tabname, AVG(f) AS rowavg FROM ifxdemo4 WHERE f>-1000);
+
+SET EXPLAIN OFF;
 ```
 
 Фактическое выполнение оператора при использовании опции `AVOID_EXECUTE`
 не производится, поэтому блок информации со статистикой выполнения
 не формируется.
-
