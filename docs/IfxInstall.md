@@ -10,6 +10,22 @@ yum install -y libaio libgcc libstdc++ ncurses pam elfutils-libelf
 Точный состав зависимостей приводится в документах Machine Notes к конкретной версии Informix, см.
 [пример](https://www.ibm.com/docs/en/informix-servers/14.10?topic=notes-linux-x86-64).
 
+## 1.0. Настройка параметров ядра
+
+### 1.0.1. Вариант для Linux x86-64
+
+Отключение Transparent Huge Pages:
+1. проверить текущую настройку: `cat /sys/kernel/mm/transparent_hugepage/enabled` (если не выводится ничего, функция Transparent Huge Pages отключена на уровне ядра);
+2. при необходимости отключить (до следующей перезагрузки): `echo never >/sys/kernel/mm/transparent_hugepage/enabled`;
+3. в файле `/etc/default/grub` добавить опцию `transparent_hugepage=never` в переменную `GRUB_CMDLINE_LINUX`;
+4. обновить конфигурацию Grub командой `grub2-mkconfig -o /boot/grub2/grub.cfg`. 
+
+Настроить явно Huge Pages для работы Informix:
+1. проверить текущие настройки: `grep Huge /proc/meminfo`;
+2. скорректировать количество страниц: добавить `vm.nr_hugepages = N` в файл `/etc/sysctl.conf`;
+3. применить изменения через `sysctl -p`;
+4. проверить результат, повторив шаг 1.
+
 ## 1.1. Установка программного обеспечения Informix
 
 Список [поддерживаемых операционных систем](http://www.ibm.com/support/docview.wss?uid=swg27013343).
