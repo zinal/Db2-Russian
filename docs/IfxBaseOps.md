@@ -248,3 +248,29 @@ SET EXPLAIN OFF;
 Фактическое выполнение оператора при использовании опции `AVOID_EXECUTE`
 не производится, поэтому блок информации со статистикой выполнения
 не формируется.
+
+## 8. Подключение через DRDA
+
+1. Добавить сервис в `sqlhosts`:
+
+```
+ifx1_drda   drsoctcp   ifx1       drda_ifx
+```
+
+Номер порта либо задавать числом, либо регистрировать в `/etc/services`:
+
+```
+drda_ifx        36000/tcp
+```
+
+2. Добавить псевдоним сервиса в `DBSERVERALIASES`.
+
+3. Перезапустить сервер Informix, проверить прослушивание порта через `ss -ln --tcp`.
+
+3. На клиенте Db2 выполнить команды для каталогизации сервера и базы данных, плюс проверки подключения:
+
+```bash
+db2 catalog tcpip node ifx1drda  remote ifx1 server drda_ifx
+db2 catalog database mydb1 as ifxdb1 at node ifx1drda
+db2 connect to ifxdb1 user myuser1 using passw0rd
+```
