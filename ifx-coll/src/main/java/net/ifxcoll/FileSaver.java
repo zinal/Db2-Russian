@@ -13,7 +13,7 @@ import java.util.zip.ZipOutputStream;
  *
  * @author zinal
  */
-public class FileSaver implements Runnable {
+public class FileSaver implements Runnable, FileHandler {
 
     private static final byte[] EOL = "\n".getBytes(StandardCharsets.UTF_8);
 
@@ -60,6 +60,7 @@ public class FileSaver implements Runnable {
         }
     }
 
+    @Override
     public void add(FileData fd) {
         if (thread==null)
             throw new IllegalStateException();

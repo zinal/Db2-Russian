@@ -12,16 +12,18 @@ public class IfxColl implements AutoCloseable, Runnable {
 
     private final long delay;
 
-    private final FileSaver saver;
     private final ExecutorService executor;
+    private final FileSaver saver;
+    private final SqlColl sqlColl;
 
     private long stamp = 0L;
     private int records = 0;
 
     public IfxColl(long delay, File file) throws Exception {
         this.delay = delay;
+        this.executor = Executors.newFixedThreadPool(10);
         this.saver = new FileSaver(delay, file);
-        this.executor = Executors.newCachedThreadPool();
+        this.sqlColl = new SqlColl(saver, executor);
     }
 
     public static void main(String[] args) {
@@ -78,9 +80,11 @@ public class IfxColl implements AutoCloseable, Runnable {
     }
 
     public void action() {
-        executor.submit(new CmdRun(saver, stamp, "onstat", "onstat"));
-        executor.submit(new CmdRun(saver, stamp, "onstat_u", "onstat", "-u"));
-        executor.submit(new CmdRun(saver, stamp, "onstat_g_ntt", "onstat", "-g", "ntt"));
+        executor.submit(new CmdRun(saver, stamp, "aaa", "onstat"));
+        executor.submit(new CmdRun(saver, stamp, "ntt", "onstat", "-g", "ntt"));
+        executor.submit(new CmdRun(saver, stamp, "ses", "onstat", "-g", "ses"));
+        executor.submit(new CmdRun(saver, stamp, "buf", "onstat", "-g", "buf"));
+        executor.submit(new CmdRun(sqlColl, stamp, "sql", "onstat", "-g", "sql"));
     }
 
 }

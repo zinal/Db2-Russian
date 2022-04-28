@@ -12,19 +12,19 @@ import java.util.List;
  */
 public class CmdRun implements Runnable {
 
-    private final FileSaver saver;
+    private final FileHandler handler;
     private final FileData fd = new FileData();
     private final List<String> command;
 
-    public CmdRun(FileSaver saver, long stamp, String code, List<String> command) {
-        this.saver = saver;
+    public CmdRun(FileHandler handler, long stamp, String code, List<String> command) {
+        this.handler = handler;
         this.command = command;
         fd.stamp = stamp;
         fd.code = code;
         fd.data = new ArrayList<>();
     }
 
-    public CmdRun(FileSaver saver, long stamp, String code, String... command) {
+    public CmdRun(FileHandler saver, long stamp, String code, String... command) {
         this(saver, stamp, code, Arrays.asList(command));
     }
 
@@ -43,7 +43,7 @@ public class CmdRun implements Runnable {
                 }
             }
             proc.waitFor();
-            saver.add(fd);
+            handler.add(fd);
         } catch(Exception ex) {
             System.err.println("FATAL: cannot run " + command);
             ex.printStackTrace(System.err);
