@@ -2,10 +2,8 @@ package net.ifxcoll;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.zip.ZipEntry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -15,19 +13,17 @@ import java.util.zip.ZipOutputStream;
 public class IfxColl implements AutoCloseable, Runnable {
 
     private final long delay;
-    private final File file;
-    private final long start;
 
-    private final ZipOutputStream zos;
+    private final FileSaver saver;
+    private final ExecutorService executor;
 
     private long stamp = 0L;
-    private long counter = 0;
+    private int records = 0;
 
     public IfxColl(long delay, File file) throws Exception {
         this.delay = delay;
-        this.file = file;
-        this.start = System.currentTimeMillis();
-        this.zos = new ZipOutputStream(new FileOutputStream(file));
+        this.saver = new FileSaver(delay, file);
+        this.executor = Executors.newCachedThreadPool();
     }
 
     public static void main(String[] args) {
@@ -55,22 +51,18 @@ public class IfxColl implements AutoCloseable, Runnable {
 
     @Override
     public void close() {
-        writeMetadata();
-        try {
-            zos.close();
-        } catch(Exception ex) {
-            System.err.println("FATAL: Failed to close the output file, data is probably damaged.");
-            ex.printStackTrace(System.err);
-        }
+        saver.stop(records);
+        records = 0;
     }
 
     @Override
     public void run() {
         Signaler.setup();
+        saver.start();
         while (! Signaler.isShutdown()) {
             stamp = System.currentTimeMillis();
             action();
-            ++counter;
+            ++records;
             final long dest = stamp + delay;
             while (true) {
                 if (Signaler.isShutdown())
@@ -85,25 +77,6 @@ public class IfxColl implements AutoCloseable, Runnable {
 
     public void action() {
         
-    }
-
-    private void writeMetadata() {
-        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.mm.dd HH:mm:ss");
-        final StringBuilder sb = new StringBuilder();
-        sb.append("ifx-coll 1.0 data").append("\r\n");
-        sb.append("Delay:  ").append(String.valueOf(delay)).append(" msec.\r\n");
-        sb.append("Items:  ").append(String.valueOf(counter)).append("\r\n");
-        sb.append("Start:  ").append(sdf.format(new Date(start))).append("\r\n");
-        sb.append("Finish: ").append(sdf.format(new Date(System.currentTimeMillis()))).append("\r\n");
-        final byte[] data = sb.toString().getBytes(StandardCharsets.UTF_8);
-        try {
-            zos.putNextEntry(new ZipEntry("info.txt"));
-            zos.write(data);
-            zos.closeEntry();
-        } catch(Exception ex) {
-            System.err.println("FATAL: Failed to save the metadata.");
-            ex.printStackTrace(System.err);
-        }
     }
 
 }
