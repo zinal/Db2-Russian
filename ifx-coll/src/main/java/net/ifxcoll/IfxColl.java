@@ -1,10 +1,8 @@
 package net.ifxcoll;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.zip.ZipOutputStream;
 
 /**
  *
@@ -51,6 +49,7 @@ public class IfxColl implements AutoCloseable, Runnable {
 
     @Override
     public void close() {
+        executor.shutdown();
         saver.stop(records);
         records = 0;
     }
@@ -63,12 +62,15 @@ public class IfxColl implements AutoCloseable, Runnable {
             stamp = System.currentTimeMillis();
             action();
             ++records;
-            final long dest = stamp + delay;
+            long tv = System.currentTimeMillis();
+            long dest = stamp + delay;
+            while (dest < tv)
+                dest += delay;
             while (true) {
                 if (Signaler.isShutdown())
                     break;
-                try { Thread.sleep(100L); } catch(InterruptedException ix) {}
-                final long tv = System.currentTimeMillis();
+                try { Thread.sleep(200L); } catch(InterruptedException ix) {}
+                tv = System.currentTimeMillis();
                 if (tv >= dest)
                     break;
             }
@@ -76,7 +78,9 @@ public class IfxColl implements AutoCloseable, Runnable {
     }
 
     public void action() {
-        
+        executor.submit(new CmdRun(saver, stamp, "onstat", "onstat"));
+        executor.submit(new CmdRun(saver, stamp, "onstat_u", "onstat", "-u"));
+        executor.submit(new CmdRun(saver, stamp, "onstat_g_ntt", "onstat", "-g", "ntt"));
     }
 
 }
