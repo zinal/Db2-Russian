@@ -18,7 +18,7 @@
         <stringProp name="connectionAge">5000</stringProp>
         <stringProp name="connectionProperties"></stringProp>
         <stringProp name="dataSource">jdbc1</stringProp>
-        <stringProp name="dbUrl">jdbc:informix-sqli://ifx1:35000/mydb1:INFORMIXSERVER=ifx1</stringProp>
+        <stringProp name="dbUrl">jdbc:informix-sqli://ifx1:35000/mydb1:INFORMIXSERVER=ifx1;INFORMIXSERVER_SECONDARY=ifx2;IFXHOST_SECONDARY=ifx2;PORTNO_SECONDARY=35000;ENABLE_HDRSWITCH=true</stringProp>
         <stringProp name="driver">com.informix.jdbc.IfxDriver</stringProp>
         <stringProp name="initQuery"></stringProp>
         <boolProp name="keepAlive">true</boolProp>
@@ -37,7 +37,7 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <intProp name="LoopController.loops">-1</intProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">30</stringProp>
+        <stringProp name="ThreadGroup.num_threads">20</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
@@ -68,8 +68,8 @@
         </JDBCSampler>
         <hashTree/>
         <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-          <stringProp name="ConstantTimer.delay">500</stringProp>
-          <stringProp name="RandomTimer.range">1500</stringProp>
+          <stringProp name="ConstantTimer.delay">100</stringProp>
+          <stringProp name="RandomTimer.range">900</stringProp>
         </UniformRandomTimer>
         <hashTree/>
       </hashTree>
