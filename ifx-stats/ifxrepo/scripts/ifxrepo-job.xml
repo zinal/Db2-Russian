@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>Sample Informix monitoring reporting job</comment>
+<entry key="file.0">../../../proj-komus-2022/Traces/2022-04-28_perf2/ifxcoll_2022-04-28_small.zip</entry>
+<entry key="time.min">2022-04-28 19:28:00</entry>
+<entry key="time.max">2022-04-28 19:31:00</entry>
+<entry key="mode">topsql</entry>
+</properties>
