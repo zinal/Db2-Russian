@@ -15,7 +15,7 @@
                 <exec.appArgs>scripts/ifxrepo-job.xml</exec.appArgs>
                 <exec.mainClass>net.ifxrepo.IfxRepo</exec.mainClass>
                 <exec.executable>java</exec.executable>
-                <exec.workingdir>/home/zinal/Projects/Db2-Russian/ifx-stats/ifxrepo</exec.workingdir>
+                <exec.workingdir></exec.workingdir>
             </properties>
         </action>
         <action>
@@ -34,7 +34,7 @@
                 <exec.mainClass>net.ifxrepo.IfxRepo</exec.mainClass>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
-                <exec.workingdir>/home/zinal/Projects/Db2-Russian/ifx-stats/ifxrepo</exec.workingdir>
+                <exec.workingdir></exec.workingdir>
             </properties>
         </action>
         <action>
@@ -52,7 +52,7 @@
                 <exec.mainClass>net.ifxrepo.IfxRepo</exec.mainClass>
                 <exec.executable>java</exec.executable>
                 <exec.appArgs>scripts/ifxrepo-job.xml</exec.appArgs>
-                <exec.workingdir>/home/zinal/Projects/Db2-Russian/ifx-stats/ifxrepo</exec.workingdir>
+                <exec.workingdir></exec.workingdir>
             </properties>
         </action>
     </actions>
