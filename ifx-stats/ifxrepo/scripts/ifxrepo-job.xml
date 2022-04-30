@@ -7,4 +7,5 @@
 <entry key="time.min">2022-04-29 12:00:00</entry>
 <entry key="time.max">2022-04-29 17:00:00</entry>
 <entry key="mode">topsql</entry>
+<entry key="limit">50</entry>
 </properties>
