@@ -1,0 +1,7 @@
+/opt/informix/14.10fc6/jvm/jre/bin/java -Difxcoll.ziplt=60 -Difxcoll.poolSize=5 -jar ifx-coll.jar 5 test1 .
+
+-Difxcoll.ziplt=60            delay between ZIP files, seconds, default=3600
+-Difxcoll.poolSize=5          thread pool size, default=10
+5                             delay between collections, seconds, default=10
+test1                         ZIP basename, default=ifxcoll
+.                             ZIP target directory, default=.

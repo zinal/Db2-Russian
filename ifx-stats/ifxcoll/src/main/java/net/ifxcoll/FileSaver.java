@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -18,24 +19,35 @@ public class FileSaver implements Runnable, FileHandler {
     private static final byte[] EOL = "\n".getBytes(StandardCharsets.UTF_8);
 
     private final long delay;
-    private final long start;
-    private final ZipOutputStream zos;
+    private final File dirname;
+    private final String basename;
+    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+    private final long zipLifeTime;
+
+    private long zosOpenStamp = 0L;
+    private ZipOutputStream zos = null;
 
     private volatile boolean shutdown = false;
-    private volatile int records = 0;
-
     private volatile Thread thread = null;
 
     private final ConcurrentLinkedQueue<FileData> queue;
     private final FileKeys fileKeys = new FileKeys();
+
     private long bytesWritten = 0L;
     private long filesWritten = 0L;
+    private int timesKnown = 0;
 
-    public FileSaver(long delay, File file) throws Exception {
+    public FileSaver(long delay, String dirname, String basename) throws Exception {
         this.delay = delay;
-        this.start = System.currentTimeMillis();
-        this.zos = new ZipOutputStream(new FileOutputStream(file));
+        this.dirname = new File(dirname);
+        this.basename = basename;
         this.queue = new ConcurrentLinkedQueue<>();
+        String prop = System.getProperty("ifxcoll.ziplt");
+        if (prop!=null && prop.length() > 0) {
+            this.zipLifeTime = 1000L * Long.parseLong(prop);
+        } else {
+            this.zipLifeTime = 3600000L;
+        }
     }
 
     public void start() {
@@ -46,11 +58,10 @@ public class FileSaver implements Runnable, FileHandler {
         }
     }
 
-    public void stop(int records) {
+    public void stop() {
         if (thread==null)
             return;
         this.shutdown = true;
-        this.records = records;
         while (true) {
             try {
                 thread.join();
@@ -85,20 +96,21 @@ public class FileSaver implements Runnable, FileHandler {
                 try { Thread.sleep(100L); } catch(InterruptedException ix) {}
             }
         }
-        writeMetadata();
-        try {
-            zos.close();
-        } catch(Exception ex) {
-            System.err.println("FATAL: Failed to close the output file, data is probably damaged.");
-            ex.printStackTrace(System.err);
-        }
+        closeZip();
     }
 
     private void writeEntry(FileData fd) throws Exception {
+        if (zos!=null && (fd.stamp - zosOpenStamp) > zipLifeTime) {
+            closeZip();
+        }
+        if (zos==null) {
+            openZip(fd.stamp);
+        }
         final String dirName = Long.toHexString(fd.stamp) + "/";
         if (! fileKeys.isKnown(fd.stamp)) {
             zos.putNextEntry(new ZipEntry(dirName));
             fileKeys.add(fd.stamp);
+            ++timesKnown;
         }
         final String fileName = dirName + fd.code + ".txt";
         zos.putNextEntry(new ZipEntry(fileName));
@@ -116,10 +128,10 @@ public class FileSaver implements Runnable, FileHandler {
         final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.mm.dd HH:mm:ss");
         final StringBuilder sb = new StringBuilder();
         sb.append("ifx-coll 1.0 data").append("\r\n");
-        sb.append("Start:   ").append(sdf.format(new Date(start))).append("\r\n");
+        sb.append("Start:   ").append(sdf.format(new Date(zosOpenStamp))).append("\r\n");
         sb.append("Finish:  ").append(sdf.format(new Date(System.currentTimeMillis()))).append("\r\n");
         sb.append("Delay:   ").append(String.valueOf(delay)).append(" msec.\r\n");
-        sb.append("Records: ").append(String.valueOf(records)).append("\r\n");
+        sb.append("Records: ").append(String.valueOf(timesKnown)).append("\r\n");
         sb.append("Entries: ").append(String.valueOf(filesWritten)).append("\r\n");
         sb.append("Bytes:   ").append(String.valueOf(bytesWritten)).append("\r\n");
         final byte[] data = sb.toString().getBytes(StandardCharsets.UTF_8);
@@ -131,6 +143,35 @@ public class FileSaver implements Runnable, FileHandler {
             System.err.println("FATAL: Failed to save the metadata.");
             ex.printStackTrace(System.err);
         }
+    }
+
+    private void closeZip() {
+        if (zos != null) {
+            writeMetadata();
+            try {
+                zos.close();
+            } catch(Exception ex) {
+                System.err.println("FATAL: Failed to close the output file, data is probably damaged.");
+                ex.printStackTrace(System.err);
+            }
+            zos = null;
+        }
+        zosOpenStamp = 0L;
+        timesKnown = 0;
+        bytesWritten = 0L;
+        filesWritten = 0L;
+        fileKeys.clear();
+    }
+
+    private void openZip(long stamp) throws Exception {
+        if (zos!=null)
+            return;
+        String fname = basename + "_" + sdf.format(new Date(stamp)) + ".zip";
+        File f = new File(dirname, fname);
+        ZipOutputStream ret = new ZipOutputStream(new FileOutputStream(f));
+        ret.setLevel(Deflater.BEST_COMPRESSION);
+        zos = ret;
+        zosOpenStamp = stamp;
     }
 
 }

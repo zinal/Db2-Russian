@@ -8,7 +8,7 @@ import java.util.TreeSet;
  */
 public class FileKeys {
 
-    public static final long MAX_SIZE = 100L;
+    public static final long MAX_SIZE = 200L;
 
     private final TreeSet<Long> knownKeys = new TreeSet<>();
 
@@ -21,6 +21,10 @@ public class FileKeys {
         if (knownKeys.size() > MAX_SIZE) {
             knownKeys.remove(knownKeys.iterator().next());
         }
+    }
+
+    public void clear() {
+        knownKeys.clear();
     }
 
 }
