@@ -58,9 +58,8 @@ public class KeyQuery {
                         if (c2=='\'') {
                             if (ix+2 < sql.length()) {
                                 final char c3 = sql.charAt(ix+2);
-                                if (c3=='\'')
-                                    ++ix;
-                                else
+                                ++ix;
+                                if (c3!='\'')
                                     break;
                             }
                         }
@@ -115,8 +114,10 @@ public class KeyQuery {
         if (ix == 0)
             return false;
         char c = sql.charAt(ix-1);
-        if (c=='\t' || c=='\n' || c=='\r' || c==' ' || c=='(' || c==')'
-                || c=='+' || c=='-' || c=='/' || c=='*' || c=='[' || c==']')
+        if (c=='\t' || c=='\n' || c=='\r' || c==' '
+                || c=='=' || c=='<' || c=='>'
+                || c=='+' || c=='-' || c=='/' || c=='*' 
+                || c=='[' || c==']' || c=='(' || c==')')
             return true;
         return false;
     }

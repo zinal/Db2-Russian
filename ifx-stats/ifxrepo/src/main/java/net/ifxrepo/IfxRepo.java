@@ -3,13 +3,9 @@ package net.ifxrepo;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -97,13 +93,30 @@ public class IfxRepo implements Runnable {
                 for (AllQueries.Grouped g : sorted) {
                     if (g.execCount < 2 && g.totalTime < 1)
                         continue;
-                    fw.append("*** SQL ID: ").append(g.key).append('\n');
+                    fw.append("\n\n*** SQL ID: ").append(g.key).append('\n');
                     fw.append("Executions: ").append(String.valueOf(g.execCount)).append('\n');
                     fw.append("Total time: ").append(String.valueOf(g.totalTime)).append('\n');
                     fw.append("Normalized SQL text:").append('\n').append('\n');
                     fw.append(g.normSql).append('\n').append('\n');
                     fw.append("Example full SQL text:").append('\n').append('\n');
                     fw.append(g.getSampleSql()).append('\n').append('\n');
+                    /*
+                    fw.append("Execution details:").append('\n').append('\n');
+                    final int maxLines = 200;
+                    int printLines = 0;
+                    for (List<AllQueries.Single> i : g.data.values()) {
+                        for (AllQueries.Single s : i) {
+                            fw.append('\t').append(s.getSess().getSessNo()).append('\t')
+                                    .append(Long.toHexString(s.getSess().getSnap().getStamp()))
+                                    .append('\n');
+                            ++printLines;
+                            if (printLines >= maxLines)
+                                break;
+                        }
+                        if (printLines >= maxLines)
+                            break;
+                    }
+                    */
                 }
             }
 
