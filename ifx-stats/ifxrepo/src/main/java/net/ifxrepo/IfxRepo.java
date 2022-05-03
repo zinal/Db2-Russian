@@ -1,8 +1,11 @@
 package net.ifxrepo;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +67,17 @@ public class IfxRepo implements Runnable {
                 }
             }
             System.out.println("Unique queries found: " + aq.data.size());
+
+            final List<String> qqs = new ArrayList<>();
+            for (AllQueries.SessQueries sq : aq.data.values()) {
+                qqs.add(sq.normSql);
+            }
+            Collections.sort(qqs);
+            try (FileWriter fw = new FileWriter("/tmp/zztop.txt")) {
+                for (String s : qqs)
+                    fw.append(s).append("\n");
+            }
+
         } catch(Exception ex) {
             throw new RuntimeException("", ex);
         } finally {
@@ -171,7 +185,9 @@ public class IfxRepo implements Runnable {
                     } else if (line.startsWith("  Clock time elapsed   : ")) {
                         knownWallTime = line.substring(25);
                     } else if (accum!=null) {
-                        if (line.equals("Last parsed SQL statement :")) {
+                        if (line.equals("Last parsed SQL statement :")
+                                || line.equals("Host variables :")
+                                || line.equals("Stored procedure stack :")) {
                             retval = new AllQueries.Single(sess, accum.toString());
                             if (knownWallTime != null)
                                 retval.setSeconds(knownWallTime);

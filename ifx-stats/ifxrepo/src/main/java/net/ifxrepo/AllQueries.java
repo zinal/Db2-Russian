@@ -20,7 +20,7 @@ public class AllQueries {
             return;
         SessQueries s = data.get(q.getKey());
         if (s==null) {
-            s = new SessQueries();
+            s = new SessQueries(q.getSqlNorm());
             data.put(q.getKey(), s);
         }
         List<Single> i = s.data.get(q.getSess().getSessNo());
@@ -33,7 +33,12 @@ public class AllQueries {
 
     public static class SessQueries {
 
+        public final String normSql;
         public final Map<String, List<Single>> data = new HashMap<>();
+
+        public SessQueries(String normSql) {
+            this.normSql = normSql;
+        }
 
     }
 

@@ -104,7 +104,7 @@ public class KeyQuery {
                     }
             }
         }
-        return sb.toString();
+        return sb.toString().trim();
     }
 
     public static boolean isNumeric(char c) {
