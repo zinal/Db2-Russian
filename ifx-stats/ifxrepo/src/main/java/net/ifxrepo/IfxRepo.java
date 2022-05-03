@@ -68,14 +68,26 @@ public class IfxRepo implements Runnable {
             }
             System.out.println("Unique queries found: " + aq.data.size());
 
+            /*
             final List<String> qqs = new ArrayList<>();
-            for (AllQueries.SessQueries sq : aq.data.values()) {
+            for (AllQueries.Grouped sq : aq.data.values()) {
                 qqs.add(sq.normSql);
             }
             Collections.sort(qqs);
             try (FileWriter fw = new FileWriter("/tmp/zztop.txt")) {
                 for (String s : qqs)
                     fw.append(s).append("\n");
+            }
+            */
+
+            aq.compute();
+            List<AllQueries.Grouped> sorted = aq.sort();
+            try (FileWriter fw = new FileWriter("/tmp/zztop.txt")) {
+                for (AllQueries.Grouped g : sorted) {
+                    fw.append(String.valueOf(g.totalTime)).append('\t')
+                            .append(String.valueOf(g.execCount)).append('\t')
+                            .append(g.normSql).append("\n");
+                }
             }
 
         } catch(Exception ex) {
