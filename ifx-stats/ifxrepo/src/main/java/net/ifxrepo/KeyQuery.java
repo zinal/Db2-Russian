@@ -90,7 +90,7 @@ public class KeyQuery {
                     break;
                 default:
                     hasSpace = false;
-                    if (isNumeric(c1)) {
+                    if (isNumeric(c1) && isPrevNumSep(sql, ix)) {
                         sb.append('?');
                         while (ix+1 < sql.length()) {
                             final char c2 = sql.charAt(ix+1);
@@ -100,7 +100,7 @@ public class KeyQuery {
                             ++ix;
                         }
                     } else {
-                            sb.append(c1);
+                        sb.append(c1);
                     }
             }
         }
@@ -109,6 +109,16 @@ public class KeyQuery {
 
     public static boolean isNumeric(char c) {
         return (c>='0') && (c<='9');
+    }
+
+    public static boolean isPrevNumSep(String sql, int ix) {
+        if (ix == 0)
+            return false;
+        char c = sql.charAt(ix-1);
+        if (c=='\t' || c=='\n' || c=='\r' || c==' ' || c=='(' || c==')'
+                || c=='+' || c=='-' || c=='/' || c=='*' || c=='[' || c==']')
+            return true;
+        return false;
     }
 
     public static String hash(String v) {

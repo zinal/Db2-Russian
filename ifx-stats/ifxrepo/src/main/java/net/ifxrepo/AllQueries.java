@@ -47,10 +47,10 @@ public class AllQueries {
             if (o1==o2)
                 return 0;
             if (o1.totalTime != o2.totalTime) {
-                return (o1.totalTime > o2.totalTime) ? 1 : -1;
+                return (o1.totalTime > o2.totalTime) ? -1 : 1;
             }
             if (o1.execCount != o2.execCount) {
-                return (o1.execCount > o2.execCount) ? 1 : -1;
+                return (o1.execCount > o2.execCount) ? -1 : 1;
             }
             return o1.key.compareTo(o2.key);
         });
@@ -105,6 +105,15 @@ public class AllQueries {
                     totalTime += prev.getSeconds();
                 }
             }
+        }
+
+        public String getSampleSql() {
+            for (List<Single> items : data.values()) {
+                for (Single s : items) {
+                    return s.getSqlSample().trim();
+                }
+            }
+            return "";
         }
     }
 

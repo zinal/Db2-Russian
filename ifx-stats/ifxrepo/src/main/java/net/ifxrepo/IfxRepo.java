@@ -84,9 +84,26 @@ public class IfxRepo implements Runnable {
             List<AllQueries.Grouped> sorted = aq.sort();
             try (FileWriter fw = new FileWriter("/tmp/zztop.txt")) {
                 for (AllQueries.Grouped g : sorted) {
+                    if (g.execCount < 2 && g.totalTime < 1)
+                        continue;
+                    String shortSql = g.normSql;
+                    if (shortSql.length() > 60)
+                        shortSql = shortSql.substring(0, 60);
                     fw.append(String.valueOf(g.totalTime)).append('\t')
                             .append(String.valueOf(g.execCount)).append('\t')
-                            .append(g.normSql).append("\n");
+                            .append(g.key).append('\t')
+                            .append(shortSql).append('\n');
+                }
+                for (AllQueries.Grouped g : sorted) {
+                    if (g.execCount < 2 && g.totalTime < 1)
+                        continue;
+                    fw.append("*** SQL ID: ").append(g.key).append('\n');
+                    fw.append("Executions: ").append(String.valueOf(g.execCount)).append('\n');
+                    fw.append("Total time: ").append(String.valueOf(g.totalTime)).append('\n');
+                    fw.append("Normalized SQL text:").append('\n').append('\n');
+                    fw.append(g.normSql).append('\n').append('\n');
+                    fw.append("Example full SQL text:").append('\n').append('\n');
+                    fw.append(g.getSampleSql()).append('\n').append('\n');
                 }
             }
 
