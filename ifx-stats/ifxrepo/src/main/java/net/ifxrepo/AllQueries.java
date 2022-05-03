@@ -46,11 +46,14 @@ public class AllQueries {
         Collections.sort(retval, (Grouped o1, Grouped o2) -> {
             if (o1==o2)
                 return 0;
-            if (o1.totalTime != o2.totalTime) {
-                return (o1.totalTime > o2.totalTime) ? -1 : 1;
+            if (o1.activeCount != o2.activeCount) {
+                return (o1.activeCount > o2.activeCount) ? -1 : 1;
             }
             if (o1.execCount != o2.execCount) {
                 return (o1.execCount > o2.execCount) ? -1 : 1;
+            }
+            if (o1.totalTime != o2.totalTime) {
+                return (o1.totalTime > o2.totalTime) ? -1 : 1;
             }
             return o1.key.compareTo(o2.key);
         });
@@ -63,6 +66,7 @@ public class AllQueries {
         public final String normSql;
         public final Map<String, List<Single>> data = new HashMap<>();
 
+        public int activeCount = 0;
         public int execCount = 0;
         public int totalTime = 0;
 
@@ -72,6 +76,7 @@ public class AllQueries {
         }
 
         private void compute() {
+            activeCount = 0;
             execCount = 0;
             totalTime = 0;
             for (List<Single> items : data.values()) {
@@ -94,6 +99,7 @@ public class AllQueries {
                         }
                         if (handlePrev) {
                             execCount += 1;
+                            activeCount += prev.isActive() ? 1 : 0;
                             totalTime += prev.getSeconds();
                         }
                     }
@@ -102,6 +108,7 @@ public class AllQueries {
                 if (prev!=null) {
                     // Последний всегда надо обрабатывать
                     execCount += 1;
+                    activeCount += prev.isActive() ? 1 : 0;
                     totalTime += prev.getSeconds();
                 }
             }
@@ -120,20 +127,21 @@ public class AllQueries {
     public static class Single extends KeyQuery {
 
         private final RecSess sess;
+        private final boolean active;
         private int seconds = 0;
 
-        public Single(RecSess sess, String sql) {
+        public Single(RecSess sess, boolean active, String sql) {
             super(sql);
             this.sess = sess;
-        }
-
-        public Single(RecSess sess, KeyQuery x) {
-            super(x);
-            this.sess = sess;
+            this.active = active;
         }
 
         public RecSess getSess() {
             return sess;
+        }
+
+        public boolean isActive() {
+            return active;
         }
 
         public int getSeconds() {

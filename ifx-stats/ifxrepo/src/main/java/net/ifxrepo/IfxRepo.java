@@ -83,10 +83,12 @@ public class IfxRepo implements Runnable {
                     if (g.execCount < 2 && g.totalTime < 1)
                         continue;
                     String shortSql = g.normSql;
-                    if (shortSql.length() > 60)
-                        shortSql = shortSql.substring(0, 60);
-                    fw.append(String.valueOf(g.totalTime)).append('\t')
+                    if (shortSql.length() > 50)
+                        shortSql = shortSql.substring(0, 50);
+                    fw
+                            .append(String.valueOf(g.activeCount)).append('\t')
                             .append(String.valueOf(g.execCount)).append('\t')
+                            .append(String.valueOf(g.totalTime)).append('\t')
                             .append(g.key).append('\t')
                             .append(shortSql).append('\n');
                 }
@@ -94,8 +96,9 @@ public class IfxRepo implements Runnable {
                     if (g.execCount < 2 && g.totalTime < 1)
                         continue;
                     fw.append("\n\n*** SQL ID: ").append(g.key).append('\n');
-                    fw.append("Executions: ").append(String.valueOf(g.execCount)).append('\n');
-                    fw.append("Total time: ").append(String.valueOf(g.totalTime)).append('\n');
+                    fw.append("Activations: ").append(String.valueOf(g.activeCount)).append('\n');
+                    fw.append("Executions:  ").append(String.valueOf(g.execCount)).append('\n');
+                    fw.append("Total time:  ").append(String.valueOf(g.totalTime)).append('\n');
                     fw.append("Normalized SQL text:").append('\n').append('\n');
                     fw.append(g.normSql).append('\n').append('\n');
                     fw.append("Example full SQL text:").append('\n').append('\n');
@@ -127,6 +130,10 @@ public class IfxRepo implements Runnable {
                 try { zf.close(); } catch(IOException iox) {}
             }
         }
+    }
+
+    private boolean handleStamp(long stamp) {
+        return stamp >= settings.getTimeMin() && stamp <= settings.getTimeMax();
     }
 
     private void grabSnapshots(ZipFile zf) throws Exception {
@@ -196,18 +203,16 @@ public class IfxRepo implements Runnable {
         }
     }
 
-    private boolean handleStamp(long stamp) {
-        return stamp >= settings.getTimeMin() && stamp <= settings.getTimeMax();
-    }
-
     private AllQueries.Single extractSql(RecSess sess) throws Exception {
         final int
                 STATE_NONE = 0,
-                STATE_SQL_TEXT = 1;
+                STATE_SQL_TEXT = 1,
+                STATE_GETSTATE = 2;
         int state = STATE_NONE;
         StringBuilder accum = null;
         String knownWallTime = null;
         AllQueries.Single retval = null;
+        boolean active = false;
         for (String line : ZipTools.readFile(sess.getSnap().getFile(), sess.getEntry())) {
             switch (state) {
                 case STATE_NONE:
@@ -219,7 +224,16 @@ public class IfxRepo implements Runnable {
                             accum.append(start);
                         }
                         state = STATE_SQL_TEXT;
+                    } else if (line.startsWith("tid ") && line.endsWith(" status")) {
+                        state = STATE_GETSTATE; // для следующей строки
                     }
+                    break;
+                case STATE_GETSTATE:
+                    state = STATE_NONE;
+                    if (line.endsWith(" running-"))
+                        active = true;
+                    else
+                        active = false;
                     break;
                 case STATE_SQL_TEXT:
                     if (line.startsWith("  QUERY_TIMEOUT setting:")) {
@@ -230,7 +244,7 @@ public class IfxRepo implements Runnable {
                         if (line.equals("Last parsed SQL statement :")
                                 || line.equals("Host variables :")
                                 || line.equals("Stored procedure stack :")) {
-                            retval = new AllQueries.Single(sess, accum.toString());
+                            retval = new AllQueries.Single(sess, active, accum.toString());
                             if (knownWallTime != null)
                                 retval.setSeconds(knownWallTime);
                             accum = null; knownWallTime = null;
@@ -243,7 +257,7 @@ public class IfxRepo implements Runnable {
             }
         }
         if (accum != null && retval == null) {
-            retval = new AllQueries.Single(sess, accum.toString());
+            retval = new AllQueries.Single(sess, active, accum.toString());
             if (knownWallTime != null)
                 retval.setSeconds(knownWallTime);
         }
