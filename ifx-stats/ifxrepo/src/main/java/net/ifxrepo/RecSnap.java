@@ -14,6 +14,8 @@ public class RecSnap {
     private final ZipFile file;
     private final long stamp;
     private final Map<String, RecSess> sessions;
+    private RecSnap snapPrev;
+    private RecSnap snapNext;
 
     private ZipEntry nttEntry;
 
@@ -45,6 +47,22 @@ public class RecSnap {
 
     public void setNttEntry(ZipEntry nttEntry) {
         this.nttEntry = nttEntry;
+    }
+
+    public RecSnap getSnapPrev() {
+        return snapPrev;
+    }
+
+    public void setSnapPrev(RecSnap snapPrev) {
+        this.snapPrev = snapPrev;
+    }
+
+    public RecSnap getSnapNext() {
+        return snapNext;
+    }
+
+    public void setSnapNext(RecSnap snapNext) {
+        this.snapNext = snapNext;
     }
 
 }

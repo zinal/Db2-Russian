@@ -8,16 +8,22 @@ import java.util.Base64;
  *
  * @author zinal
  */
-public class RecQuery {
+public class KeyQuery {
 
     private final String key;        // hash of normalized SQL
     private final String sqlNorm;    // normalized SQL
     private final String sqlSample;  // original SQL example
 
-    public RecQuery(String sql) {
+    public KeyQuery(String sql) {
         this.sqlSample = sql;
         this.sqlNorm = normalize(sql);
         this.key = hash(this.sqlNorm);
+    }
+
+    public KeyQuery(KeyQuery x) {
+        this.key = x.key;
+        this.sqlNorm = x.sqlNorm;
+        this.sqlSample = x.sqlSample;
     }
 
     public String getKey() {
@@ -34,13 +40,18 @@ public class RecQuery {
 
     public static String normalize(String sql) {
         final StringBuilder sb = new StringBuilder();
+        boolean hasSpace = false;
         for (int ix = 0; ix < sql.length(); ++ix) {
             final char c1 = sql.charAt(ix);
             switch (c1) {
                 case '\n': case '\r': case '\t': case ' ':
-                    sb.append(' ');
+                    if (!hasSpace) {
+                        sb.append(' ');
+                        hasSpace = true;
+                    }
                     break;
                 case '\'':
+                    hasSpace = false;
                     sb.append("\'?\'");
                     while (ix+1 < sql.length()) {
                         final char c2 = sql.charAt(ix+1);
@@ -57,6 +68,7 @@ public class RecQuery {
                     }
                     break;
                 case '\"':
+                    hasSpace = false;
                     sb.append(c1);
                     while (ix+1 < sql.length()) {
                         final char c2 = sql.charAt(ix+1);
@@ -77,6 +89,7 @@ public class RecQuery {
                     }
                     break;
                 default:
+                    hasSpace = false;
                     if (isNumeric(c1)) {
                         sb.append('?');
                         while (ix+1 < sql.length()) {

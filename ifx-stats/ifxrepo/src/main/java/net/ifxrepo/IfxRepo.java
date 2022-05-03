@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,6 +55,15 @@ public class IfxRepo implements Runnable {
             }
             // Print the overall statistics
             System.out.println("Snapshots to be processed: " + snaps.size());
+            // Collect all SQL queries from snapshot data.
+            final AllQueries aq = new AllQueries();
+            for (RecSnap snap : snaps.values()) {
+                for (RecSess sess : snap.getSessions().values()) {
+                    final AllQueries.Single sql = extractSql(sess);
+                    aq.add(sql);
+                }
+            }
+            System.out.println("Unique queries found: " + aq.data.size());
         } catch(Exception ex) {
             throw new RuntimeException("", ex);
         } finally {
@@ -119,10 +130,66 @@ public class IfxRepo implements Runnable {
             }
         }
         System.out.println("\ttotal " + entryCounter + " entries.");
+
+        RecSnap snapPrev = null;
+        for (RecSnap snap : snaps.values()) {
+            snap.setSnapPrev(snapPrev);
+            if (snapPrev!=null)
+                snapPrev.setSnapNext(snap);
+            snapPrev = snap;
+        }
     }
 
     private boolean handleStamp(long stamp) {
         return stamp >= settings.getTimeMin() && stamp <= settings.getTimeMax();
+    }
+
+    private AllQueries.Single extractSql(RecSess sess) throws Exception {
+        final int
+                STATE_NONE = 0,
+                STATE_SQL_TEXT = 1;
+        int state = STATE_NONE;
+        StringBuilder accum = null;
+        String knownWallTime = null;
+        AllQueries.Single retval = null;
+        for (String line : ZipTools.readFile(sess.getSnap().getFile(), sess.getEntry())) {
+            switch (state) {
+                case STATE_NONE:
+                    if (line.startsWith("Current SQL statement ")) {
+                        accum = new StringBuilder();
+                        int ix = line.indexOf(" in procedure ");
+                        if (ix > 0) {
+                            String start = line.substring(ix);
+                            accum.append(start);
+                        }
+                        state = STATE_SQL_TEXT;
+                    }
+                    break;
+                case STATE_SQL_TEXT:
+                    if (line.startsWith("  QUERY_TIMEOUT setting:")) {
+                        /*noop*/
+                    } else if (line.startsWith("  Clock time elapsed   : ")) {
+                        knownWallTime = line.substring(25);
+                    } else if (accum!=null) {
+                        if (line.equals("Last parsed SQL statement :")) {
+                            retval = new AllQueries.Single(sess, accum.toString());
+                            if (knownWallTime != null)
+                                retval.setSeconds(knownWallTime);
+                            accum = null; knownWallTime = null;
+                            state = STATE_NONE;
+                        } else {
+                            accum.append("\n").append(line);
+                        }
+                    }
+                    break;
+            }
+        }
+        if (accum != null && retval == null) {
+            retval = new AllQueries.Single(sess, accum.toString());
+            if (knownWallTime != null)
+                retval.setSeconds(knownWallTime);
+        }
+        return retval;
     }
 
 }
