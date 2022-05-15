@@ -10,6 +10,8 @@ Installation:
 
 scp bin/ifxrand.jar informix@ifx1:/home/informix/
 
+EXECUTE PROCEDURE sqlj.remove_jar('ifxrand_jar', 1);
+
 dbaccess mydb1 <<EOF
 EXECUTE PROCEDURE sqlj.install_jar
   ('file:/home/informix/ifxrand.jar', 'ifxrand_jar', 1);
